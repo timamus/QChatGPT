@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header bordered>
       <q-toolbar>
         <q-btn
           flat
@@ -11,32 +11,30 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-select
+          standout
+          v-model="model"
+          :options="models"
+          @update:model-value="saveSettings"
+          label="OpenAI Model"
+          popup-content-style="font-size: 1.1em"
+          class="toolbar-model-selector"
+        >
+          <template v-slot:append>
+            <q-avatar size="30px">
+              <img src="~assets/qchatgpt-logo-green.svg" />
+            </q-avatar>
+          </template>
+        </q-select>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-space />
+
+        <div>QChatGPT v{{ version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <q-list> </q-list>
     </q-drawer>
 
     <q-page-container>
@@ -46,61 +44,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { version } from "../../package.json";
+import { ref } from "vue";
+import { useQuasar } from "quasar";
+const $q = useQuasar();
 
 defineOptions({
-  name: 'MainLayout'
-})
+  name: "MainLayout",
+});
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
+const leftDrawerOpen = ref(false);
 
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+function toggleLeftDrawer() {
+  leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+const models = ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"];
+const model = ref($q.localStorage.getItem("model") || models[0]);
 </script>
+
+<style scoped>
+.toolbar-model-selector {
+  width: 170px;
+  font-size: 1.1em;
+}
+
+/* Change the background color for highlighted, standout, and dark-themed QSelect components */
+:deep(.q-field--highlighted.q-field--standout.q-field--dark .q-field__control) {
+  background: var(--q-dark) !important;
+}
+
+/* Change the text color for highlighted, standout, and dark-themed QSelect components */
+:deep(.q-field--highlighted.q-field--standout.q-field--dark .q-field__native) {
+  color: #fff;
+}
+</style>

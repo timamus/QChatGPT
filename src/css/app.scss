@@ -1,1 +1,10 @@
 // app global css in SCSS form
+
+.q-header {
+  background-color: #050a14;
+}
+
+/* Override the background color */
+body {
+  background: #080e1a !important;
+}
