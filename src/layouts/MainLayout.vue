@@ -114,10 +114,8 @@ import { settings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
 import AboutDialog from "src/components/AboutDialog.vue";
-import { useClipboard } from "@vueuse/core";
-import { useQuasar } from "quasar";
+import { useQuasar, copyToClipboard } from "quasar";
 
-const { copy } = useClipboard();
 const $q = useQuasar();
 
 defineOptions({
@@ -152,16 +150,31 @@ function showAboutDialog() {
  * Copies the OpenAI billing page link to the clipboard
  */
 const copyLink = async () => {
-  await copy(
+  // Attempt to copy the link to the clipboard
+  await copyToClipboard(
     "https://platform.openai.com/settings/organization/billing/overview"
-  );
-  $q.notify({
-    color: "green",
-    position: "bottom",
-    message: "Link Copied",
-    icon: "done",
-    timeout: 2000,
-  });
+  )
+    .then(() => {
+      // Show a success notification if the copy operation is successful
+      $q.notify({
+        color: "green",
+        position: "bottom",
+        message: "Link Copied",
+        icon: "done",
+        timeout: 2000,
+      });
+    })
+    .catch(() => {
+      // Show an error notification if the copy operation fails
+      $q.notify({
+        color: "red",
+        position: "bottom",
+        message: "Failed to copy link",
+        icon: "error",
+        timeout: 2000,
+      });
+      console.error("Failed to copy link:", error);
+    });
 };
 </script>
 
