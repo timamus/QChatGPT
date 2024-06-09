@@ -73,7 +73,7 @@
         </q-item-section>
       </q-item>
       <!-- Button to copy the link to the API purchase page -->
-      <q-item clickable v-ripple>
+      <q-item clickable v-ripple @click="copyLink">
         <q-item-section avatar>
           <q-icon name="link" />
         </q-item-section>
@@ -91,7 +91,7 @@
         </q-item-section>
       </q-item>
       <!-- About button -->
-      <q-item clickable v-ripple>
+      <q-item clickable v-ripple @click="showAboutDialog">
         <q-item-section avatar>
           <q-icon name="info" style="color: primary" />
         </q-item-section>
@@ -113,8 +113,11 @@ import { ref } from "vue";
 import { settings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
+import AboutDialog from "src/components/AboutDialog.vue";
+import { useClipboard } from "@vueuse/core";
 import { useQuasar } from "quasar";
 
+const { copy } = useClipboard();
 const $q = useQuasar();
 
 defineOptions({
@@ -137,9 +140,40 @@ function showSettingsDialog() {
     // componentProps: {},
   });
 }
+
+function showAboutDialog() {
+  $q.dialog({
+    component: AboutDialog,
+    // componentProps: {},
+  });
+}
+
+/**
+ * Copies the OpenAI billing page link to the clipboard
+ */
+const copyLink = async () => {
+  await copy(
+    "https://platform.openai.com/settings/organization/billing/overview"
+  );
+  $q.notify({
+    color: "green",
+    position: "bottom",
+    message: "Link Copied",
+    icon: "done",
+    timeout: 2000,
+  });
+};
 </script>
 
 <style scoped>
+.q-item {
+  font-size: 1.1em;
+}
+
+.q-item__section--avatar {
+  min-width: 0px;
+}
+
 .toolbar-model-selector {
   width: 170px;
   font-size: 1.1em;
