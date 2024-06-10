@@ -101,6 +101,8 @@
       </q-item>
     </q-drawer>
 
+    <q-footer bordered class="custom-footer"> <send-component /> </q-footer>
+
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -114,6 +116,7 @@ import { settings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
 import AboutDialog from "src/components/AboutDialog.vue";
+import SendComponent from "src/components/SendComponent.vue";
 import { useQuasar, copyToClipboard } from "quasar";
 
 const $q = useQuasar();
@@ -200,5 +203,13 @@ const copyLink = async () => {
 /* Change the text color for highlighted, standout, and dark-themed QSelect components */
 :deep(.q-field--highlighted.q-field--standout.q-field--dark .q-field__native) {
   color: #fff;
+}
+
+.my-separator {
+  background: #027be3 !important;
+}
+
+.custom-footer {
+  background-color: #050a14;
 }
 </style>
