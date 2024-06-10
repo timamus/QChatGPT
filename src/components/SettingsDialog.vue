@@ -14,14 +14,15 @@
             outlined
             v-model="settings.apiKey.value"
             label="Enter your OpenAI API Key"
-            class="q-mb-md"
+            class="input-api-key q-mb-md"
           />
           <q-select
             outlined
             v-model="settings.model.value"
             :options="settings.models"
             label="Select OpenAI Model"
-            class="q-mb-md"
+            popup-content-style="font-size: 1.1em"
+            class="model-selector q-mb-md"
           />
           <div class="q-mt-md">
             <q-badge color="primary"
@@ -33,7 +34,7 @@
               :min="0"
               :max="2"
               :step="0.1"
-              class="col-grow"
+              class="col-grow custom-slider"
             />
           </div>
           <div class="q-mt-md">
@@ -46,7 +47,7 @@
               :min="0"
               :max="1"
               :step="0.01"
-              class="col-grow"
+              class="col-grow custom-slider"
             />
           </div>
           <div class="q-mt-md">
@@ -60,7 +61,7 @@
               :min="-2"
               :max="2"
               :step="0.01"
-              class="col-grow"
+              class="col-grow custom-slider"
             />
           </div>
           <div class="q-mt-md">
@@ -74,7 +75,7 @@
               :min="-2"
               :max="2"
               :step="0.01"
-              class="col-grow"
+              class="col-grow custom-slider"
             />
           </div>
         </q-card-section>
@@ -123,7 +124,7 @@ function onSaveClick() {
 
 <style scoped>
 .q-dialog-plugin {
-  width: 300px;
+  width: 400px;
   max-width: 80vw;
   height: 560px;
   max-height: 80vh;
@@ -132,5 +133,17 @@ function onSaveClick() {
 .q-dialog-scroll-area {
   height: calc(100% - 116px);
   padding-right: 5px;
+}
+
+.input-api-key {
+  font-size: 1.1em;
+}
+
+.model-selector {
+  font-size: 1.1em;
+}
+
+:deep(.custom-slider .q-slider__text) {
+  font-size: 1.1em;
 }
 </style>

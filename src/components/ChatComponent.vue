@@ -6,10 +6,10 @@
     class="q-scroll-area fit absolute"
   >
     <div v-if="messages.length !== 0">
-      <!-- <div v-for="message in store.messages" :key="message.id">
-      {{ message.text }}
-    </div> -->
-      <messages-component :messages="messages" />
+      <div v-for="message in messages" :key="message.id">
+        {{ message.text }}
+      </div>
+      <!-- <messages-component :messages="messages" /> -->
     </div>
   </q-scroll-area>
 </template>
@@ -18,8 +18,7 @@
 import { ref } from "vue";
 import MessagesComponent from "./MessagesComponent.vue";
 import { thumbStyle, barStyle } from "src/styles";
-
-const messages = ref([]);
+import { messages } from "../services/chatDBServices.js";
 </script>
 
 <style scoped>

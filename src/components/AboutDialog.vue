@@ -70,6 +70,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   max-width: 80vw;
   height: 680px;
   max-height: 80vh;
+  font-size: 1.1em;
 }
 
 .q-dialog-scroll-area {

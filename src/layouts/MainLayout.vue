@@ -35,7 +35,7 @@
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <!-- Button to start a new chat -->
-      <q-item clickable v-ripple>
+      <q-item clickable v-ripple @click="handleNewChat">
         <q-item-section avatar>
           <q-icon name="add" />
         </q-item-section>
@@ -50,12 +50,31 @@
         :bar-style="barStyle"
         style="height: calc(100% - 295px)"
       >
+        <q-list v-if="chats.length !== 0">
+          <q-item
+            v-for="chat in chats"
+            :key="chat.id"
+            clickable
+            v-ripple
+            @click="handleSelectChat(chat.id)"
+            :class="{ 'selected-chat': selectedChatId === chat.id }"
+          >
+            <q-item-section avatar style="margin-right: 5px">
+              <q-icon name="message" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="ellipsis truncate">{{
+                chat.name
+              }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
       </q-scroll-area>
 
       <q-separator class="my-separator" inset />
 
       <!-- Button to clear the chat -->
-      <q-item clickable v-ripple>
+      <q-item clickable v-ripple @click="showClearChatsDialog">
         <q-item-section avatar>
           <q-icon name="delete" />
         </q-item-section>
@@ -111,13 +130,20 @@
 
 <script setup>
 import { version } from "../../package.json";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { settings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
 import AboutDialog from "src/components/AboutDialog.vue";
+import ClearChatsDialog from "src/components/ClearChatsDialog.vue";
 import SendComponent from "src/components/SendComponent.vue";
 import { useQuasar, copyToClipboard } from "quasar";
+import {
+  selectedChatId,
+  chats,
+  fetchChats,
+  selectChat,
+} from "../services/chatDBServices.js";
 
 const $q = useQuasar();
 
@@ -131,9 +157,30 @@ function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 
+onMounted(async () => {
+  await fetchChats();
+});
+
+const handleNewChat = async () => {
+  await selectChat(null);
+  closeDrawerIfOverlay();
+};
+
+const handleSelectChat = async (chatId) => {
+  await selectChat(chatId);
+  closeDrawerIfOverlay();
+};
+
 const saveModel = () => {
   $q.localStorage.setItem("model", settings.model.value);
 };
+
+function showClearChatsDialog() {
+  $q.dialog({
+    component: ClearChatsDialog,
+    // componentProps: {},
+  });
+}
 
 function showSettingsDialog() {
   $q.dialog({
@@ -179,6 +226,14 @@ const copyLink = async () => {
       console.error("Failed to copy link:", error);
     });
 };
+
+// Close the left drawer menu if in overlay mode
+function closeDrawerIfOverlay() {
+  // Close the left drawer menu if the screen is small
+  if ($q.screen.sm) {
+    leftDrawerOpen.value = false;
+  }
+}
 </script>
 
 <style scoped>
@@ -211,5 +266,13 @@ const copyLink = async () => {
 
 .custom-footer {
   background-color: #050a14;
+}
+
+.selected-chat {
+  background-color: #3d3d3d; /* Background color of the current (selected) chat */
+}
+
+.truncate {
+  max-width: 220px; /* Maximum width of the chat name */
 }
 </style>
