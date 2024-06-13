@@ -11,12 +11,16 @@ export let lastApiCallTime = ref(null);
 // Fetch all chats from the database, sort them, and select the most recent one
 export const fetchChats = async () => {
   const loadedChats = await db.chats.toArray();
-  // Sort chats by the last modified date, starting with the most recent
-  const sortedChats = loadedChats.sort(
-    (a, b) => b.lastModified - a.lastModified
-  );
-  chats.value = sortedChats;
-  return chats.value[0].id;
+  // Check if there are any chats
+  if (loadedChats.length > 0) {
+    // Sort chats by the last modified date, starting with the most recent
+    const sortedChats = loadedChats.sort(
+      (a, b) => b.lastModified - a.lastModified
+    );
+    chats.value = sortedChats;
+    return chats.value[0].id;
+  }
+  return null;
 };
 
 // Create a new chat and select it
@@ -53,6 +57,7 @@ export const selectChat = async (chatId) => {
 export const clearChats = async () => {
   await db.chats.clear();
   chats.value = [];
+  messages.value = [];
   selectedChatId.value = null;
 };
 
