@@ -5,22 +5,18 @@ export let chats = ref([]);
 export let messages = ref([]);
 export let selectedChatId = ref(null);
 
+// Variable to store the time of the last OpenAI API call
+export let lastApiCallTime = ref(null);
+
 // Fetch all chats from the database, sort them, and select the most recent one
 export const fetchChats = async () => {
   const loadedChats = await db.chats.toArray();
-  if (loadedChats.length > 0) {
-    // Sort chats by the last modified date, starting with the most recent
-    const sortedChats = loadedChats.sort(
-      (a, b) => b.lastModified - a.lastModified
-    );
-    chats.value = sortedChats;
-    // Set the selected chat to the most recently modified chat
-    selectedChatId.value = sortedChats[0].id;
-    await selectChat(selectedChatId.value);
-    return selectedChatId;
-  }
-  selectedChatId.value = null;
-  return null;
+  // Sort chats by the last modified date, starting with the most recent
+  const sortedChats = loadedChats.sort(
+    (a, b) => b.lastModified - a.lastModified
+  );
+  chats.value = sortedChats;
+  return chats.value[0].id;
 };
 
 // Create a new chat and select it
@@ -70,7 +66,7 @@ export const loadChat = async (chatId) => {
 };
 
 // Save new messages to a chat, updating its metadata
-export const saveMessagesToChat = async ({ chatId, newMessages }) => {
+export const saveMessagesToChat = async (chatId, newMessages) => {
   let chat = await db.chats.get(chatId);
   if (chat) {
     // Filter out error messages and map to the required format
@@ -91,12 +87,11 @@ export const saveMessagesToChat = async ({ chatId, newMessages }) => {
 };
 
 // Save a chat and its messages, creating a new chat if necessary
-export const saveChat = async ({ chatId, newMessages }) => {
+export const saveChat = async (chatId, newMessages) => {
   if (!chatId) {
     chatId = await createChat();
   }
-  // Update the list of chats after creating
   await fetchChats();
-  await saveMessagesToChat({ chatId, newMessages });
+  await saveMessagesToChat(chatId, newMessages);
   return chatId;
 };

@@ -158,8 +158,14 @@ function toggleLeftDrawer() {
 }
 
 onMounted(async () => {
-  await fetchChats();
+  selectedChatId.value = await handleGetChats();
+  await handleSelectChat(selectedChatId.value);
 });
+
+const handleGetChats = async () => {
+  const id = await fetchChats();
+  return id; // return the ID of the last modified chat
+};
 
 const handleNewChat = async () => {
   await selectChat(null);
@@ -183,6 +189,7 @@ function showClearChatsDialog() {
 }
 
 function showSettingsDialog() {
+  closeDrawerIfOverlay();
   $q.dialog({
     component: SettingsDialog,
     // componentProps: {},
@@ -190,6 +197,7 @@ function showSettingsDialog() {
 }
 
 function showAboutDialog() {
+  closeDrawerIfOverlay();
   $q.dialog({
     component: AboutDialog,
     // componentProps: {},
@@ -200,6 +208,7 @@ function showAboutDialog() {
  * Copies the OpenAI billing page link to the clipboard
  */
 const copyLink = async () => {
+  closeDrawerIfOverlay();
   // Attempt to copy the link to the clipboard
   await copyToClipboard(
     "https://platform.openai.com/settings/organization/billing/overview"
