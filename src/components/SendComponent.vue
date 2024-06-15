@@ -88,12 +88,23 @@ const sendMessage = async () => {
         case 2:
           role = "error";
           break;
+        case 3:
+          role = "system";
+          break;
       }
       return {
         role: role,
         content: message.text,
       };
     });
+
+  // Add the system message at the beginning of apiMessages
+  if (settings.prompt.value && settings.prompt.value.trim() !== "") {
+    apiMessages.unshift({
+      role: "system",
+      content: settings.prompt.value,
+    });
+  }
 
   let isError = false;
   const openai = getOpenAI();

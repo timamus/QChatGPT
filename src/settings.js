@@ -14,4 +14,5 @@ export const settings = {
   presence_penalty: ref(
     parseFloat(LocalStorage.getItem("presence_penalty")) || 0
   ),
+  prompt: ref(LocalStorage.getItem("prompt") || ""),
 };

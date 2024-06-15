@@ -76,7 +76,7 @@ export const saveMessagesToChat = async (chatId, newMessages) => {
   if (chat) {
     // Filter out error messages and map to the required format
     chat.messages = newMessages
-      .filter((message) => message.role !== 2) // Do not save error messages to the DB
+      .filter((message) => message.role !== 2 && message.role !== 3) // Do not save error and system messages to the DB
       .map((message) => ({
         role: message.role,
         text: message.text,

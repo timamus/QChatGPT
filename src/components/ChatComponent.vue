@@ -25,8 +25,6 @@ import {
 
 const scrollAreaRef = ref(null);
 
-let scrollOld = ref(null);
-
 /**
  * Interpolates a value exponentially between two points (x0, y0) and (x1, y1).
  *

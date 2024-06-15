@@ -24,6 +24,15 @@
             popup-content-style="font-size: 1.1em"
             class="model-selector q-mb-md"
           />
+          <q-input
+            outlined
+            v-model="settings.prompt.value"
+            type="textarea"
+            label="System Prompt"
+            hint="Max 3000 characters"
+            maxlength="3000"
+            class="prompt"
+          />
           <div class="q-mt-md">
             <q-badge color="primary"
               >Temperature: {{ settings.temperature.value }} (0 to 2)</q-badge
@@ -118,6 +127,7 @@ function onSaveClick() {
     "presence_penalty",
     settings.presence_penalty.value.toString()
   );
+  $q.localStorage.setItem("prompt", settings.prompt.value);
   onDialogOK();
 }
 </script>
@@ -144,6 +154,10 @@ function onSaveClick() {
 }
 
 :deep(.custom-slider .q-slider__text) {
+  font-size: 1.1em;
+}
+
+.prompt {
   font-size: 1.1em;
 }
 </style>
