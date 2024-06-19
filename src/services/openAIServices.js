@@ -4,17 +4,12 @@ import axios from "axios";
 
 // Fetch all models from OpenAI API
 export const fetchModels = async (apiKey) => {
-  try {
-    const response = await axios.get("https://api.openai.com/v1/models", {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-    });
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching models:", error);
-    return [];
-  }
+  const response = await axios.get("https://api.openai.com/v1/models", {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+  return response.data.data;
 };
 
 // Fetch only GPT models

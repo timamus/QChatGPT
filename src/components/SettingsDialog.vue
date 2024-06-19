@@ -154,12 +154,29 @@ const loading = ref(false);
 // Load models and update local storage
 const loadModels = async () => {
   loading.value = true;
-  const apiKey = settings.apiKey.value;
-  const gptModels = await fetchGptModels(apiKey);
-  console.log(gptModels);
-  settings.models.value = gptModels;
-  $q.localStorage.setItem("models", JSON.stringify(gptModels));
-  loading.value = false;
+  try {
+    const apiKey = settings.apiKey.value;
+    const gptModels = await fetchGptModels(apiKey);
+    console.log(gptModels);
+    settings.models.value = gptModels;
+    $q.localStorage.setItem("models", JSON.stringify(gptModels));
+  } catch (error) {
+    console.error("Error loading models:", error);
+
+    let message = `Error loading models: ${error.message}`;
+    if (error.response?.status === 401) {
+      message += ". Please ensure you have provided a valid API key.";
+    }
+
+    $q.notify({
+      type: "negative",
+      color: "red",
+      position: "bottom",
+      message: message,
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
