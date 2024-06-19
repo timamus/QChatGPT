@@ -2,6 +2,7 @@
 
 import axios from "axios";
 
+// Fetch all models from OpenAI API
 export const fetchModels = async (apiKey) => {
   try {
     const response = await axios.get("https://api.openai.com/v1/models", {
@@ -16,6 +17,7 @@ export const fetchModels = async (apiKey) => {
   }
 };
 
+// Fetch only GPT models
 export const fetchGptModels = async (apiKey) => {
   const allModels = await fetchModels(apiKey);
   return allModels

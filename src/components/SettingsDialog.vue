@@ -16,7 +16,9 @@
             label="Enter your OpenAI API Key"
             class="input-api-key q-mb-md"
           />
+          <!-- Model selection and refresh button -->
           <div class="row items-center">
+            <!-- Model dropdown -->
             <q-select
               outlined
               v-model="settings.model.value"
@@ -25,6 +27,7 @@
               popup-content-style="font-size: 1.1em"
               class="model-selector q-mb-md col"
             />
+            <!-- Refresh button -->
             <q-btn
               :loading="loading"
               color="primary"
@@ -148,9 +151,10 @@ function onSaveClick() {
 
 const loading = ref(false);
 
+// Load models and update local storage
 const loadModels = async () => {
   loading.value = true;
-  const apiKey = settings.apiKey.value; // Перенесите ключ API сюда или используйте переменные окружения
+  const apiKey = settings.apiKey.value;
   const gptModels = await fetchGptModels(apiKey);
   console.log(gptModels);
   settings.models.value = gptModels;
