@@ -14,7 +14,7 @@
         <q-select
           standout
           v-model="settings.model.value"
-          :options="settings.models"
+          :options="settings.models.value"
           @update:model-value="saveModel"
           label="OpenAI Model"
           popup-content-style="font-size: 1.1em"

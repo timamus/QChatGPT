@@ -16,14 +16,27 @@
             label="Enter your OpenAI API Key"
             class="input-api-key q-mb-md"
           />
-          <q-select
-            outlined
-            v-model="settings.model.value"
-            :options="settings.models"
-            label="Select OpenAI Model"
-            popup-content-style="font-size: 1.1em"
-            class="model-selector q-mb-md"
-          />
+          <div class="row items-center">
+            <q-select
+              outlined
+              v-model="settings.model.value"
+              :options="settings.models.value"
+              label="Select OpenAI Model"
+              popup-content-style="font-size: 1.1em"
+              class="model-selector q-mb-md col"
+            />
+            <q-btn
+              :loading="loading"
+              color="primary"
+              class="q-mb-md col-auto custom-btn-height"
+              @click="loadModels"
+            >
+              <q-icon name="refresh" size="32px" />
+              <template v-slot:loading>
+                <q-spinner-facebook />
+              </template>
+            </q-btn>
+          </div>
           <q-input
             outlined
             v-model="settings.prompt.value"
@@ -98,10 +111,12 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { useDialogPluginComponent } from "quasar";
 import { settings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import { useQuasar } from "quasar";
+import { fetchGptModels } from "src/services/openAIServices";
 
 const $q = useQuasar();
 
@@ -130,6 +145,18 @@ function onSaveClick() {
   $q.localStorage.setItem("prompt", settings.prompt.value);
   onDialogOK();
 }
+
+const loading = ref(false);
+
+const loadModels = async () => {
+  loading.value = true;
+  const apiKey = settings.apiKey.value; // Перенесите ключ API сюда или используйте переменные окружения
+  const gptModels = await fetchGptModels(apiKey);
+  console.log(gptModels);
+  settings.models.value = gptModels;
+  $q.localStorage.setItem("models", JSON.stringify(gptModels));
+  loading.value = false;
+};
 </script>
 
 <style scoped>
@@ -159,5 +186,9 @@ function onSaveClick() {
 
 .prompt {
   font-size: 1.1em;
+}
+
+.custom-btn-height {
+  height: 56px;
 }
 </style>

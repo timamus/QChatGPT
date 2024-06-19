@@ -4,7 +4,11 @@ import { LocalStorage } from "quasar";
 
 export const settings = {
   apiKey: ref(LocalStorage.getItem("apiKey") || ""),
-  models: ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
+  models: ref(
+    LocalStorage.getItem("models")
+      ? JSON.parse(LocalStorage.getItem("models"))
+      : ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"]
+  ),
   model: ref(LocalStorage.getItem("model") || "gpt-4o"),
   temperature: ref(parseFloat(LocalStorage.getItem("temperature")) || 1),
   top_p: ref(parseFloat(LocalStorage.getItem("top_p")) || 1),
