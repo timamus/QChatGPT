@@ -1,6 +1,11 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    transition-show="jump-down"
+    transition-hide="jump-up"
+  >
+    <q-card flat bordered class="q-dialog-plugin acrylic-effect">
       <q-card-section class="row items-center">
         <span class="q-ml-sm">Are you sure you want to clear all chats?</span>
       </q-card-section>

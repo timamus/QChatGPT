@@ -1,6 +1,12 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    transition-show="jump-down"
+    transition-hide="jump-up"
+  >
+    <q-card flat bordered class="q-dialog-plugin acrylic-effect">
+      <!-- <q-card class="q-dialog-plugin"> -->
       <q-card-section>
         <div class="text-h6">Settings</div>
       </q-card-section>
@@ -11,24 +17,27 @@
       >
         <q-card-section>
           <q-input
-            outlined
+            filled
             v-model="settings.apiKey.value"
             label="Enter your OpenAI API Key"
             class="input-api-key q-mb-md"
+            maxlength="150"
+            clearable
           />
           <!-- Model selection and refresh button -->
           <div class="row items-center">
             <!-- Model dropdown -->
             <q-select
-              outlined
+              filled
               v-model="settings.model.value"
               :options="settings.models.value"
               label="Select OpenAI Model"
-              popup-content-style="font-size: 1.1em"
+              popup-content-class="popup-styled scrollbar-styled"
               class="model-selector q-mb-md col"
             />
             <!-- Refresh button -->
             <q-btn
+              flat
               :loading="loading"
               color="primary"
               class="q-mb-md col-auto custom-btn-height"
@@ -41,13 +50,15 @@
             </q-btn>
           </div>
           <q-input
-            outlined
+            filled
             v-model="settings.prompt.value"
             type="textarea"
             label="System Prompt"
             hint="Max 3000 characters"
             maxlength="3000"
             class="prompt"
+            input-class="scrollbar-styled"
+            clearable
           />
           <div class="q-mt-md">
             <q-badge color="primary"
@@ -55,7 +66,7 @@
             >
             <q-slider
               v-model="settings.temperature.value"
-              label-always
+              label
               :min="0"
               :max="2"
               :step="0.1"
@@ -68,7 +79,7 @@
             >
             <q-slider
               v-model="settings.top_p.value"
-              label-always
+              label
               :min="0"
               :max="1"
               :step="0.01"
@@ -82,7 +93,7 @@
             >
             <q-slider
               v-model="settings.frequency_penalty.value"
-              label-always
+              label
               :min="-2"
               :max="2"
               :step="0.01"
@@ -96,7 +107,7 @@
             >
             <q-slider
               v-model="settings.presence_penalty.value"
-              label-always
+              label
               :min="-2"
               :max="2"
               :step="0.01"
@@ -106,8 +117,8 @@
         </q-card-section>
       </q-scroll-area>
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" @click="onDialogCancel" />
-        <q-btn flat label="Save" color="primary" @click="onSaveClick" />
+        <!-- <q-btn flat label="Cancel" color="primary" @click="onDialogCancel" /> -->
+        <q-btn flat label="OK" color="primary" @click="onOKClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -132,20 +143,7 @@ defineEmits([...useDialogPluginComponent.emits]);
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-function onSaveClick() {
-  $q.localStorage.setItem("apiKey", settings.apiKey.value);
-  $q.localStorage.setItem("model", settings.model.value);
-  $q.localStorage.setItem("temperature", settings.temperature.value.toString());
-  $q.localStorage.setItem("top_p", settings.top_p.value.toString());
-  $q.localStorage.setItem(
-    "frequency_penalty",
-    settings.frequency_penalty.value.toString()
-  );
-  $q.localStorage.setItem(
-    "presence_penalty",
-    settings.presence_penalty.value.toString()
-  );
-  $q.localStorage.setItem("prompt", settings.prompt.value);
+function onOKClick() {
   onDialogOK();
 }
 
@@ -155,9 +153,7 @@ const loading = ref(false);
 const loadModels = async () => {
   loading.value = true;
   try {
-    const apiKey = settings.apiKey.value;
-    const gptModels = await fetchGptModels(apiKey);
-    console.log(gptModels);
+    const gptModels = await fetchGptModels();
     settings.models.value = gptModels;
     $q.localStorage.setItem("models", JSON.stringify(gptModels));
   } catch (error) {

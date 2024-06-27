@@ -33,6 +33,21 @@
         <q-item-label class="text-subtitle1">{{
           message.role === 0 ? "You" : "ChatGPT"
         }}</q-item-label>
+        <!-- Block for displaying user files -->
+        <div v-if="message.files">
+          <div v-for="file in message.files" :key="file.name" class="file-item">
+            <q-card class="card-file" flat bordered>
+              <q-card-section class="row no-wrap items-center">
+                <q-icon
+                  name="file_present"
+                  class="q-ma-xs col-auto flex flex-center"
+                  size="32px"
+                ></q-icon>
+                <div class="col">{{ file.name }}</div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
         <!-- Display plain text for user messages -->
         <template v-if="message.role === 0">
           <pre class="pre-wrap">{{ message.text }}</pre>
@@ -238,11 +253,21 @@ const copyBlock = async (text) => {
 <style scoped>
 /* Styling for sent and received messages */
 .sent-message {
-  background-color: #002433;
+  /* background-color: #002433; */
+  background-color: rgba(255, 255, 255, 0.07);
 }
 
 .received-message {
-  background-color: #080e1a;
+  /* background-color: #080e1a; */
+  background: rgba(0, 0, 0, 0) !important;
+}
+
+/* Styling for file card */
+.card-file {
+  margin-bottom: 1em;
+  margin-top: 1em;
+  max-width: 350px;
+  background: rgba(0, 0, 0, 0) !important;
 }
 
 /* Styling for code card */
@@ -250,11 +275,7 @@ const copyBlock = async (text) => {
   margin-bottom: 1em;
   margin-top: 1em;
   max-width: 100%;
-}
-
-/* Dark theme styling for code card */
-.q-dark.card-code {
-  background: #002433 !important;
+  background: rgba(0, 0, 0, 0) !important;
 }
 
 /* Styling for preformatted text display */
@@ -271,7 +292,8 @@ const copyBlock = async (text) => {
 
 /* Deep styling for code highlighting */
 :deep(pre code.hljs) {
-  background: #002433 !important;
+  /* background: #002433 !important; */
+  background: rgba(0, 0, 0, 0);
   padding: 0 !important;
   overflow-x: visible !important;
 }

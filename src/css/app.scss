@@ -1,10 +1,54 @@
 // app global css in SCSS form
 
-.q-header {
-  background-color: #050a14;
+.q-layout {
+  /* background: #080e1a; */
+  /* background: linear-gradient(to bottom right, #050a14, #2b1e0d); */
+
+  background: radial-gradient(
+    circle at top left,
+    #050a14,
+    #211f24,
+    #221d2a,
+    #261a32,
+    #2c1a22,
+    #2e1a1b,
+    #281d1c
+  );
 }
 
-/* Override the background color */
-body {
-  background: #080e1a !important;
+.q-header {
+  /* background-color: #050a14; */
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.q-footer {
+  /* background-color: #050a14; */
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.acrylic-effect {
+  backdrop-filter: blur(20px);
+  /* background-color: rgba(33, 31, 36, 0.8); */ /* Color #211f24 */
+  background-color: rgba(34, 29, 42, 0.8); /* Color #221d2a */
+  /* background-color: rgba(5, 10, 20, 0.6); */ /* Color #050a14 */
+  /* border: 1px solid rgba(255, 255, 255, 0.28); */ /* Light semi-transparent border */
+}
+
+.q-drawer {
+  backdrop-filter: blur(20px);
+  background-color: rgba(0, 0, 0, 0.4);
+  /* border-right: 1px solid rgba(255, 255, 255, 0.28); */
+}
+
+.popup-styled {
+  font-size: 1.1em;
+  backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: none !important;
+}
+
+.scrollbar-styled {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(2, 123, 227, 0.75) rgba(2, 123, 227, 0.2);
 }

@@ -12,12 +12,13 @@
         />
 
         <q-select
-          standout
+          square
+          filled
           v-model="settings.model.value"
           :options="settings.models.value"
           @update:model-value="saveModel"
           label="OpenAI Model"
-          popup-content-style="font-size: 1.1em"
+          popup-content-class="popup-styled scrollbar-styled"
           class="toolbar-model-selector"
         >
           <template v-slot:append>
@@ -120,7 +121,7 @@
       </q-item>
     </q-drawer>
 
-    <q-footer bordered class="custom-footer"> <send-component /> </q-footer>
+    <q-footer bordered> <send-component /> </q-footer>
 
     <q-page-container>
       <router-view />
@@ -131,7 +132,7 @@
 <script setup>
 import { version } from "../../package.json";
 import { ref, onMounted } from "vue";
-import { settings } from "src/settings";
+import { settings, loadSettings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
 import AboutDialog from "src/components/AboutDialog.vue";
@@ -158,6 +159,8 @@ function toggleLeftDrawer() {
 }
 
 onMounted(async () => {
+  loadSettings(); // Load settings
+
   selectedChatId.value = await handleGetChats();
   await handleSelectChat(selectedChatId.value);
 });
@@ -259,26 +262,13 @@ function closeDrawerIfOverlay() {
   font-size: 1.1em;
 }
 
-/* Change the background color for highlighted, standout, and dark-themed QSelect components */
-:deep(.q-field--highlighted.q-field--standout.q-field--dark .q-field__control) {
-  background: var(--q-dark) !important;
-}
-
-/* Change the text color for highlighted, standout, and dark-themed QSelect components */
-:deep(.q-field--highlighted.q-field--standout.q-field--dark .q-field__native) {
-  color: #fff;
-}
-
 .my-separator {
   background: #027be3 !important;
 }
 
-.custom-footer {
-  background-color: #050a14;
-}
-
 .selected-chat {
-  background-color: #3d3d3d; /* Background color of the current (selected) chat */
+  /* background-color: #3d3d3d; */ /* Background color of the current (selected) chat */
+  background-color: rgba(255, 255, 255, 0.14);
 }
 
 .truncate {

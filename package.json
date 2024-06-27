@@ -1,6 +1,6 @@
 {
   "name": "qchatgpt",
-  "version": "0.1.3",
+  "version": "0.1.8",
   "description": "ChatGPT cross-platform client made with Quasar Framework",
   "productName": "QChatGPT",
   "author": "timamus <timamus@gmail.com>",
@@ -15,7 +15,6 @@
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
     "@quasar/extras": "^1.16.4",
-    "axios": "^1.7.2",
     "dexie": "^4.0.7",
     "highlight.js": "^11.9.0",
     "openai": "^4.50.0",

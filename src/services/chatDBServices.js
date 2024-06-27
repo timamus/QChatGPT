@@ -1,3 +1,5 @@
+// src/services/chatDBServices.js
+
 import { ref } from "vue";
 import db from "boot/db";
 
@@ -43,7 +45,7 @@ export const selectChat = async (chatId) => {
       messages.value = await loadChat(chatId);
     } catch (error) {
       // Handle potential errors when loading the chat
-      console.error("Ошибка при загрузке чата:", error);
+      console.error("Error loading chat:", error);
       // Clear messages or set them to an error state
       messages.value = [];
     }
@@ -80,6 +82,12 @@ export const saveMessagesToChat = async (chatId, newMessages) => {
       .map((message) => ({
         role: message.role,
         text: message.text,
+        files: message.files
+          ? message.files.map((file) => ({
+              name: file.name,
+              content: file.content,
+            }))
+          : null,
       }));
     // Rename the chat if there are messages
     if (newMessages.length > 0) {

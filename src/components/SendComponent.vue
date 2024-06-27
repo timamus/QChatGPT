@@ -1,6 +1,56 @@
 <template>
+  <div v-show="hasFiles" class="q-pt-md q-px-md">
+    <q-uploader
+      ref="uploader"
+      label="Uploaded files"
+      multiple
+      class="custom-uploader scrollbar-styled"
+      @added="handleUpload"
+      @removed="handleFileRemove"
+      flat
+      hide-upload-btn
+      clearable
+      max-files="10"
+      max-file-size="5242880"
+      accept=".png,.jpeg,.jpg,.webp,.gif"
+    >
+      <template v-slot:header="scope">
+        <div class="row no-wrap items-center q-pa-sm q-gutter-xs">
+          <q-btn
+            v-if="scope.queuedFiles.length > 0"
+            icon="clear_all"
+            @click="scope.removeQueuedFiles"
+            round
+            dense
+            flat
+          >
+            <q-tooltip>Clear All</q-tooltip>
+          </q-btn>
+          <q-spinner v-if="isUploading" class="q-uploader__spinner" />
+          <div class="col">
+            <div class="q-uploader__title">Uploaded files</div>
+            <div class="q-uploader__subtitle">
+              {{ scope.uploadSizeLabel }} / {{ uploadProgressLabel }}
+            </div>
+          </div>
+          <q-btn
+            v-if="scope.canAddFiles"
+            type="a"
+            icon="add_box"
+            @click="scope.pickFiles"
+            round
+            dense
+            flat
+          >
+            <q-uploader-add-trigger />
+            <q-tooltip>Pick Files</q-tooltip>
+          </q-btn>
+        </div>
+      </template>
+    </q-uploader>
+  </div>
   <q-input
-    outlined
+    filled
     bottom-slots
     v-model="newMessage"
     label="Send a message"
@@ -10,6 +60,9 @@
     clearable
     autogrow
   >
+    <template v-slot:prepend>
+      <q-btn round flat icon="attach_file" @click="triggerUpload" />
+    </template>
     <template v-slot:append>
       <q-spinner-dots size="2rem" v-if="isLoading" />
       <div>
@@ -35,141 +88,105 @@
 
 <script setup>
 import { ref } from "vue";
-import OpenAI from "openai";
-import { settings } from "src/settings";
+import { useQuasar } from "quasar";
 import {
-  selectedChatId,
-  messages,
-  lastApiCallTime,
-  createChat,
-  saveChat,
-} from "../services/chatDBServices.js";
+  sendMessage as sendOpenAIMessage,
+  abortStream,
+  isLoading,
+} from "../services/openAIServices.js";
+
+const $q = useQuasar();
 
 const newMessage = ref("");
-const isLoading = ref(false);
-let stream = ref(null);
-let isNoAbort = false;
+// Variables for file upload
+const uploader = ref(null); // File uploader
+const hasFiles = ref(false); // Flag indicating if files are present
+const uploadedFiles = ref([]); // List of uploaded files
+const uploadProgressLabel = ref("0%"); // Upload progress label
+const isUploading = ref(false); // Flag indicating upload process
 
-// Create a new instance of the OpenAI client
-function getOpenAI() {
-  return new OpenAI({
-    apiKey: settings.apiKey.value,
-    dangerouslyAllowBrowser: true,
+const sendMessage = async () => {
+  await sendOpenAIMessage(newMessage, uploadedFiles, uploader);
+};
+
+const triggerUpload = (event) => {
+  if (uploader.value) {
+    uploader.value.pickFiles(event);
+  }
+};
+
+const updateUploadProgressLabel = () => {
+  const totalFiles = uploader.value.files.length;
+  const convertedFiles = uploadedFiles.value.length;
+  const progress =
+    totalFiles > 0 ? Math.round((convertedFiles / totalFiles) * 100) : 0;
+  uploadProgressLabel.value = `${progress}%`;
+};
+
+function handleUpload(files) {
+  hasFiles.value = uploader.value.files.length > 0;
+  isUploading.value = true;
+  files.forEach((file, index) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      uploadedFiles.value.push({
+        file: {
+          name: file.name,
+          content: e.target.result,
+        },
+      });
+      updateUploadProgressLabel();
+      if (index === files.length - 1) {
+        isUploading.value = false;
+      }
+    };
+    reader.readAsDataURL(file);
   });
 }
 
-// Send a new message to the OpenAI API and handle the response stream
-const sendMessage = async () => {
-  // Ensure input is not empty and response is not in progress
-  if (!newMessage.value || isLoading.value) {
-    return;
-  }
-
-  // Update the time before making the API call
-  lastApiCallTime.value = new Date(); // This assigns the current date and time
-
-  // Add the new message to the messages array with role 0 (user)
-  messages.value.push({ text: newMessage.value, role: 0 });
-  newMessage.value = "";
-  isLoading.value = true;
-
-  // Filter out error messages and map the messages to the required API format
-  const apiMessages = messages.value
-    .filter((message) => message.role !== 2) // Do not send error messages to the API
-    .map((message) => {
-      let role;
-      switch (message.role) {
-        case 0:
-          role = "user";
-          break;
-        case 1:
-          role = "assistant";
-          break;
-        case 2:
-          role = "error";
-          break;
-        case 3:
-          role = "system";
-          break;
-      }
-      return {
-        role: role,
-        content: message.text,
-      };
-    });
-
-  // Add the system message at the beginning of apiMessages
-  if (settings.prompt.value && settings.prompt.value.trim() !== "") {
-    apiMessages.unshift({
-      role: "system",
-      content: settings.prompt.value,
-    });
-  }
-
-  let isError = false;
-  const openai = getOpenAI();
-
-  // Send messages to the OpenAI API and handle the response stream
-  stream.value = await openai.chat.completions
-    .create({
-      model: settings.model.value,
-      messages: apiMessages,
-      temperature: settings.temperature.value,
-      top_p: settings.top_p.value,
-      frequency_penalty: settings.frequency_penalty.value,
-      presence_penalty: settings.presence_penalty.value,
-      stream: true,
-    })
-    .catch(async (err) => {
-      console.log(err.status); // 400
-      console.log(err.name); // BadRequestError
-      console.log(err.message);
-      console.log(err.headers); // {server: 'nginx', ...}
-      isError = true;
-      messages.value.push({ text: "Error: " + err.message, role: 2 });
-      //throw err;
-    });
-
-  if (!isError) {
-    messages.value.push({ text: "", role: 1 });
-  }
-
-  let chatId = null;
-  isNoAbort = true;
-
-  // Create or use selected chat ID
-  if (selectedChatId.value === null) {
-    chatId = await createChat();
-  } else {
-    chatId = selectedChatId.value;
-  }
-
-  isNoAbort = false;
-
-  // Save the chat if there was an error, otherwise process the response stream
-  if (isError) {
-    // Save chat to the database if the messages array changes
-    chatId = await saveChat(chatId, messages.value);
-  } else {
-    for await (const chunk of stream.value) {
-      const textResponse = chunk.choices[0]?.delta?.content || "";
-      messages.value[messages.value.length - 1].text += textResponse;
-      // Save chat to the database if the messages array changes
-      chatId = await saveChat(chatId, messages.value);
-    }
-  }
-  isLoading.value = false;
-};
-
-// Abort the response stream if it exists
-const abortStream = () => {
-  if (stream.value) {
-    stream.value.controller.abort();
-  }
+const handleFileRemove = (removedFiles) => {
+  removedFiles.forEach((removedFile) => {
+    uploadedFiles.value = uploadedFiles.value.filter(
+      (file) => file.file.name !== removedFile.name
+    );
+  });
+  hasFiles.value = uploader.value.files.length > 0;
+  updateUploadProgressLabel();
 };
 </script>
 
 <style scoped>
+.custom-uploader {
+  max-width: 48rem;
+  width: 100%;
+  margin: 0 auto;
+  font-size: 1.1em;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+:deep(.custom-uploader .q-uploader__file) {
+  width: 150px;
+  height: 150px;
+  margin-top: 8px; /* Add vertical spacing */
+  margin-left: 8px; /* Add horizontal spacing between elements */
+}
+
+:deep(.custom-uploader .q-uploader__file--img) {
+  background-size: cover; /* Set background to cover the entire element */
+}
+
+:deep(.custom-uploader .q-uploader__list) {
+  display: flex;
+  flex-wrap: wrap; /* Ensure items wrap to a new line if there is not enough space */
+  align-items: center; /* Align items vertically in the center */
+  justify-content: flex-start; /* Align items at the start of the container */
+}
+
+:deep(.custom-uploader .q-uploader__file-header) {
+  align-items: start;
+}
+
 .my-input {
   max-width: 50rem !important;
   margin: 0 auto; /* Center alignment */
@@ -177,6 +194,10 @@ const abortStream = () => {
 }
 
 :deep(.q-field__append) {
+  align-self: flex-end;
+}
+
+:deep(.q-field__prepend) {
   align-self: flex-end;
 }
 </style>

@@ -1,6 +1,11 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    transition-show="jump-down"
+    transition-hide="jump-up"
+  >
+    <q-card flat bordered class="q-dialog-plugin acrylic-effect">
       <q-card-section class="row items-center">
         <q-avatar icon="info" color="primary" text-color="white" />
         <span class="q-ml-sm">About Us</span>
@@ -44,7 +49,7 @@
         </q-card-section>
       </q-scroll-area>
       <q-card-actions align="right">
-        <q-btn color="primary" label="Close" @click="onDialogCancel" />
+        <q-btn flat color="primary" label="Close" @click="onDialogCancel" />
       </q-card-actions>
     </q-card>
   </q-dialog>
