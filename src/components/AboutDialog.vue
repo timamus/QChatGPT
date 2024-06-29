@@ -5,7 +5,7 @@
     transition-show="jump-down"
     transition-hide="jump-up"
   >
-    <q-card flat bordered class="q-dialog-plugin acrylic-effect">
+    <q-card class="q-dialog-plugin acrylic-effect">
       <q-card-section class="row items-center">
         <q-avatar icon="info" color="primary" text-color="white" />
         <span class="q-ml-sm">About Us</span>

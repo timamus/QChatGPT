@@ -141,7 +141,7 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
 
   // Create or use selected chat ID
   if (selectedChatId.value === null) {
-    chatId = await createChat();
+    chatId = await createChat(messages.value[0].text);
   } else {
     chatId = selectedChatId.value;
   }

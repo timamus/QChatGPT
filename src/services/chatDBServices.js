@@ -26,9 +26,15 @@ export const fetchChats = async () => {
 };
 
 // Create a new chat and select it
-export const createChat = async () => {
+export const createChat = async (incomingText) => {
+  // Check if incomingText exists and is not empty
+  // Use the first 50 characters as the name or "New chat"
+  const name =
+    incomingText && incomingText.trim()
+      ? incomingText.trim().substring(0, 50)
+      : "New chat";
   const chatId = await db.chats.add({
-    name: "New chat",
+    name: name,
     messages: [],
     lastModified: new Date(),
   });
@@ -89,10 +95,6 @@ export const saveMessagesToChat = async (chatId, newMessages) => {
             }))
           : null,
       }));
-    // Rename the chat if there are messages
-    if (newMessages.length > 0) {
-      chat.name = newMessages[0].text.substring(0, 50); // Update chat name
-    }
     // Update the last modified date
     chat.lastModified = new Date();
     await db.chats.put(chat);
@@ -104,7 +106,7 @@ export const saveChat = async (chatId, newMessages) => {
   if (!chatId) {
     chatId = await createChat();
   }
-  await fetchChats();
   await saveMessagesToChat(chatId, newMessages);
+  await fetchChats();
   return chatId;
 };

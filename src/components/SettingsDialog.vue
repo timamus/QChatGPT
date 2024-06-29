@@ -5,7 +5,7 @@
     transition-show="jump-down"
     transition-hide="jump-up"
   >
-    <q-card flat bordered class="q-dialog-plugin acrylic-effect">
+    <q-card class="q-dialog-plugin acrylic-effect">
       <!-- <q-card class="q-dialog-plugin"> -->
       <q-card-section>
         <div class="text-h6">Settings</div>

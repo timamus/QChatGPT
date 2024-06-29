@@ -52,23 +52,31 @@
         style="height: calc(100% - 295px)"
       >
         <q-list v-if="chats.length !== 0">
-          <q-item
-            v-for="chat in chats"
-            :key="chat.id"
-            clickable
-            v-ripple
-            @click="handleSelectChat(chat.id)"
-            :class="{ 'selected-chat': selectedChatId === chat.id }"
-          >
-            <q-item-section avatar style="margin-right: 5px">
-              <q-icon name="message" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="ellipsis truncate">{{
-                chat.name
-              }}</q-item-label>
-            </q-item-section>
-          </q-item>
+          <template v-for="(chat, index) in groupedChats" :key="index">
+            <q-item v-if="chat.isSeparator" class="separator-item">
+              <q-item-section>
+                <q-item-label class="text-subtitle2">{{
+                  chat.label
+                }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item
+              v-else
+              clickable
+              v-ripple
+              @click="handleSelectChat(chat.id)"
+              :class="{ 'selected-chat': selectedChatId === chat.id }"
+            >
+              <q-item-section avatar style="margin-right: 5px">
+                <q-icon name="message" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="ellipsis truncate">{{
+                  chat.name
+                }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
         </q-list>
       </q-scroll-area>
 
@@ -131,14 +139,14 @@
 
 <script setup>
 import { version } from "../../package.json";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { settings, loadSettings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
 import AboutDialog from "src/components/AboutDialog.vue";
 import ClearChatsDialog from "src/components/ClearChatsDialog.vue";
 import SendComponent from "src/components/SendComponent.vue";
-import { useQuasar, copyToClipboard } from "quasar";
+import { useQuasar, copyToClipboard, date } from "quasar";
 import {
   selectedChatId,
   chats,
@@ -179,6 +187,43 @@ const handleSelectChat = async (chatId) => {
   await selectChat(chatId);
   closeDrawerIfOverlay();
 };
+
+// Groups chats by last modified date into timeline categories
+const groupedChats = computed(() => {
+  const today = date.startOfDate(new Date(), "day");
+  const yesterday = date.addToDate(today, { days: -1 });
+  const sevenDaysAgo = date.addToDate(today, { days: -7 });
+  const thirtyDaysAgo = date.addToDate(today, { days: -30 });
+
+  const result = [];
+  let lastSeparator = null;
+
+  chats.value.forEach((chat) => {
+    const chatDate = date.startOfDate(chat.lastModified, "day");
+
+    let label;
+    if (chatDate >= today) {
+      label = "Today";
+    } else if (chatDate >= yesterday) {
+      label = "Yesterday";
+    } else if (chatDate >= sevenDaysAgo) {
+      label = "Previous 7 days";
+    } else if (chatDate >= thirtyDaysAgo) {
+      label = "Previous 30 days";
+    } else {
+      label = date.formatDate(chat.lastModified, "MMMM YYYY");
+    }
+
+    if (lastSeparator !== label) {
+      result.push({ isSeparator: true, label });
+      lastSeparator = label;
+    }
+
+    result.push(chat);
+  });
+
+  return result;
+});
 
 const saveModel = () => {
   $q.localStorage.setItem("model", settings.model.value);
@@ -264,6 +309,10 @@ function closeDrawerIfOverlay() {
 
 .my-separator {
   background: #027be3 !important;
+}
+
+.separator-item {
+  min-height: 36px !important;
 }
 
 .selected-chat {
