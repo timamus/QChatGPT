@@ -48,8 +48,10 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
   newMessage.value = "";
   isLoading.value = true;
 
-  // Call removeQueuedFiles to clear uploaded files after adding the message
-  uploader.value.removeQueuedFiles();
+  if (uploader && uploader.value && uploader.value.removeQueuedFiles) {
+    // Call removeQueuedFiles to clear uploaded files after adding the message
+    uploader.value.removeQueuedFiles();
+  }
 
   // Filter out error messages and map the messages to the required API format
   const apiMessages = messages.value

@@ -88,14 +88,11 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import {
   sendMessage as sendOpenAIMessage,
   abortStream,
   isLoading,
 } from "../services/openAIServices.js";
-
-const $q = useQuasar();
 
 const newMessage = ref("");
 // Variables for file upload
