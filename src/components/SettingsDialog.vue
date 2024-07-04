@@ -10,6 +10,9 @@
       <q-card-section>
         <div class="text-h6">Settings</div>
       </q-card-section>
+
+      <q-separator />
+
       <q-scroll-area
         :thumb-style="thumbStyle"
         :bar-style="barStyle"
@@ -185,7 +188,7 @@ const loadModels = async () => {
 }
 
 .q-dialog-scroll-area {
-  height: calc(100% - 116px);
+  height: calc(100% - 117px);
   padding-right: 5px;
 }
 

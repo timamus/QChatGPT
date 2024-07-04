@@ -3,6 +3,8 @@
 import { ref } from "vue";
 import db from "boot/db";
 
+import { abortStream } from "../services/openAIServices.js";
+
 export let chats = ref([]);
 export let messages = ref([]);
 export let selectedChatId = ref(null);
@@ -44,6 +46,7 @@ export const createChat = async (incomingText) => {
 
 // Select a chat by its ID and load its messages
 export const selectChat = async (chatId) => {
+  abortStream();
   if (chatId) {
     selectedChatId.value = chatId;
     try {
@@ -63,10 +66,9 @@ export const selectChat = async (chatId) => {
 
 // Clear all chats from the database and reset state
 export const clearChats = async () => {
+  await selectChat(null);
   await db.chats.clear();
   chats.value = [];
-  messages.value = [];
-  selectedChatId.value = null;
 };
 
 // Load messages for a given chat ID
@@ -109,4 +111,23 @@ export const saveChat = async (chatId, newMessages) => {
   await saveMessagesToChat(chatId, newMessages);
   await fetchChats();
   return chatId;
+};
+
+export const deleteChat = async (chatId) => {
+  if (chatId) {
+    try {
+      // Delete the chat with the given ID
+      await db.chats.delete(chatId);
+
+      // Update the chats list by fetching all remaining chats
+      await fetchChats();
+
+      // If the deleted chat was the selected one, reset the selectedChatId and messages
+      if (selectedChatId.value === chatId) {
+        await selectChat(null);
+      }
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+    }
+  }
 };

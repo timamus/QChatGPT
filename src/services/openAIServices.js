@@ -157,9 +157,11 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
   } else {
     for await (const chunk of stream) {
       const textResponse = chunk.choices[0]?.delta?.content || "";
-      messages.value[messages.value.length - 1].text += textResponse;
-      // Save chat to the database if the messages array changes
-      chatId = await saveChat(chatId, messages.value);
+      if (messages.value.length > 0) {
+        messages.value[messages.value.length - 1].text += textResponse;
+        // Save chat to the database if the messages array changes
+        chatId = await saveChat(chatId, messages.value);
+      }
     }
   }
   isLoading.value = false;

@@ -1,6 +1,6 @@
 {
   "name": "qchatgpt",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "ChatGPT cross-platform client made with Quasar Framework",
   "productName": "QChatGPT",
   "author": "timamus <timamus@gmail.com>",

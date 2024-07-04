@@ -52,8 +52,9 @@
         style="height: calc(100% - 295px)"
       >
         <q-list v-if="chats.length !== 0">
-          <template v-for="(chat, index) in groupedChats" :key="index">
+          <template v-for="chat in groupedChats" :key="chat.id">
             <q-item v-if="chat.isSeparator" class="separator-item">
+              <!-- Timeline marker -->
               <q-item-section>
                 <q-item-label class="text-subtitle2">{{
                   chat.label
@@ -65,7 +66,8 @@
               clickable
               v-ripple
               @click="handleSelectChat(chat.id)"
-              :class="{ 'selected-chat': selectedChatId === chat.id }"
+              :active="selectedChatId === chat.id"
+              active-class="selected-chat"
             >
               <q-item-section avatar style="margin-right: 5px">
                 <q-icon name="message" />
@@ -75,6 +77,27 @@
                   chat.name
                 }}</q-item-label>
               </q-item-section>
+              <q-menu
+                touch-position
+                context-menu
+                transition-show="jump-down"
+                transition-hide="jump-up"
+                class="popup-styled"
+              >
+                <!-- Popup menu -->
+                <q-list dense style="min-width: 100px">
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="showDeleteChatDialog(chat.id, chat.name)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="delete" class="text-red" />
+                    </q-item-section>
+                    <q-item-section class="text-red">Delete</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
             </q-item>
           </template>
         </q-list>
@@ -144,6 +167,7 @@ import { settings, loadSettings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import SettingsDialog from "src/components/SettingsDialog.vue";
 import AboutDialog from "src/components/AboutDialog.vue";
+import DeleteChatDialog from "src/components/DeleteChatDialog.vue";
 import ClearChatsDialog from "src/components/ClearChatsDialog.vue";
 import SendComponent from "src/components/SendComponent.vue";
 import { useQuasar, copyToClipboard, date } from "quasar";
@@ -228,6 +252,16 @@ const groupedChats = computed(() => {
 const saveModel = () => {
   $q.localStorage.setItem("model", settings.model.value);
 };
+
+function showDeleteChatDialog(chatId, chatName) {
+  $q.dialog({
+    component: DeleteChatDialog,
+    componentProps: {
+      chatId: chatId,
+      chatName: chatName,
+    },
+  });
+}
 
 function showClearChatsDialog() {
   $q.dialog({
@@ -316,8 +350,10 @@ function closeDrawerIfOverlay() {
 }
 
 .selected-chat {
-  /* background-color: #3d3d3d; */ /* Background color of the current (selected) chat */
-  background-color: rgba(255, 255, 255, 0.14);
+  /* Background color of the current (selected) chat */
+  /* background-color: #3d3d3d; */
+  /* background-color: rgba(255, 255, 255, 0.14); */
+  /* background-color: rgba(25, 118, 210, 0.14); */
 }
 
 .truncate {

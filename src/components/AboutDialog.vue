@@ -7,9 +7,12 @@
   >
     <q-card class="q-dialog-plugin acrylic-effect">
       <q-card-section class="row items-center">
-        <q-avatar icon="info" color="primary" text-color="white" />
-        <span class="q-ml-sm">About Us</span>
+        <q-avatar icon="info" color="primary" text-color="white" size="32px" />
+        <span class="text-h6 q-ml-sm">About Us</span>
       </q-card-section>
+
+      <q-separator />
+
       <q-scroll-area
         :thumb-style="thumbStyle"
         :bar-style="barStyle"
@@ -79,7 +82,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 }
 
 .q-dialog-scroll-area {
-  height: calc(100% - 132px);
+  height: calc(100% - 117px);
   padding-right: 5px;
 }
 </style>

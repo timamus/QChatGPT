@@ -7,17 +7,18 @@
   >
     <q-card class="q-dialog-plugin acrylic-effect">
       <q-card-section>
-        <div class="text-h6">Clear chat history?</div>
+        <div class="text-h6">Delete chat?</div>
       </q-card-section>
 
       <q-separator />
 
       <q-card-section class="row items-center">
-        <span>Are you sure you want to clear all chats?</span>
+        <span>This will delete</span>
+        <span class="chat-name q-ml-sm">{{ chatName }}</span>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn flat label="Cancel" color="primary" @click="onDialogCancel" />
-        <q-btn flat label="Clear" color="negative" @click="onClearClick" />
+        <q-btn flat label="Delete" color="negative" @click="onDeleteClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -25,10 +26,17 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
-import { fetchChats, clearChats } from "../services/chatDBServices.js";
+import { deleteChat } from "../services/chatDBServices.js";
 
 const props = defineProps({
-  // ...your custom props
+  chatId: {
+    type: Number,
+    required: true,
+  },
+  chatName: {
+    type: String,
+    required: true,
+  },
 });
 
 defineEmits([...useDialogPluginComponent.emits]);
@@ -36,9 +44,8 @@ defineEmits([...useDialogPluginComponent.emits]);
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-async function onClearClick() {
-  await clearChats(); // Clear all chats from the database
-  await fetchChats(); // Fetch the updated list of chats
+async function onDeleteClick() {
+  await deleteChat(props.chatId); // Delete chat from DB
   onDialogOK(); // Execute the dialog OK action
 }
 </script>
@@ -46,5 +53,13 @@ async function onClearClick() {
 <style scoped>
 .q-dialog-plugin {
   font-size: 1.1em;
+}
+
+.chat-name {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
 }
 </style>

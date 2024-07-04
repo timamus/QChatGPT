@@ -51,11 +51,10 @@
   </div>
   <q-input
     filled
-    bottom-slots
     v-model="newMessage"
     label="Send a message"
     @keydown.enter.prevent="newMessage ? sendMessage() : null"
-    class="q-pa-md my-input flex items-end"
+    class="q-px-md q-pt-md my-input flex items-end"
     :input-style="{ maxHeight: '284px' }"
     clearable
     autogrow
@@ -84,6 +83,9 @@
       </div>
     </template>
   </q-input>
+  <div class="q-pt-xs text-center centered-text">
+    ChatGPT can make mistakes. Check important info.
+  </div>
 </template>
 
 <script setup>
@@ -196,5 +198,11 @@ const handleFileRemove = (removedFiles) => {
 
 :deep(.q-field__prepend) {
   align-self: flex-end;
+}
+
+.centered-text {
+  width: 100%;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.7);
 }
 </style>
