@@ -1,9 +1,9 @@
 <template>
   <!-- List of messages; only displayed if there are messages -->
-  <q-list v-if="messages.length !== 0">
+  <q-list v-if="transformedMessages.length !== 0">
     <!-- Iterate through each message -->
     <q-item
-      v-for="message in messages"
+      v-for="message in transformedMessages"
       :key="message.id"
       :class="{
         'sent-message': message.role === 0,
@@ -120,8 +120,10 @@
 </template>
 
 <script setup>
+import { ref, watch } from "vue";
 import { useQuasar, copyToClipboard } from "quasar";
 import { thumbStyle, barStyle } from "src/styles";
+import { getFilesByIds } from "../services/chatDBServices.js";
 
 const props = defineProps({
   messages: {
@@ -129,6 +131,34 @@ const props = defineProps({
     required: true,
   },
 });
+
+const transformedMessages = ref([]);
+
+// Function to transform the array based on the specified logic
+// This includes retrieving file names by their IDs
+const transformMessages = async (messages) => {
+  transformedMessages.value = await Promise.all(
+    messages.map(async (message) => {
+      let newMessage = { ...message }; // Create a copy of the message object
+      if (newMessage.fileIds && newMessage.fileIds.length > 0) {
+        const files = await getFilesByIds(newMessage.fileIds);
+        newMessage.files = files.map((file) => ({ name: file.name }));
+      } else {
+        newMessage.files = null;
+      }
+      return newMessage;
+    })
+  );
+};
+
+// Watch for changes in props and trigger processing
+watch(
+  () => props.messages,
+  (newData) => {
+    transformMessages(newData);
+  },
+  { immediate: true, deep: true } // deep: true ensures deep watching of array changes
+);
 
 // Function to split messages into text and code parts
 const splitMessage = (text) => {

@@ -9,6 +9,8 @@ import {
   lastApiCallTime,
   createChat,
   saveChat,
+  saveUploadedFiles,
+  getFilesByIds,
 } from "../services/chatDBServices.js";
 
 function getOpenAI() {
@@ -29,20 +31,29 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
     return;
   }
 
+  let chatId = null;
+  isNoAbort = true;
+
+  // Create or use selected chat ID
+  if (selectedChatId.value === null) {
+    chatId = await createChat(newMessage.value);
+  } else {
+    chatId = selectedChatId.value;
+  }
+
+  isNoAbort = false;
+
   // Update the time before making the API call
   lastApiCallTime.value = new Date(); // This assigns the current date and time
+
+  // Save uploaded files and get their IDs
+  const fileIds = await saveUploadedFiles(chatId, uploadedFiles.value);
 
   // Add the new message to the messages array with role 0 (user)
   messages.value.push({
     role: 0,
     text: newMessage.value,
-    files:
-      uploadedFiles.value.length > 0
-        ? uploadedFiles.value.map((file) => ({
-            name: file.file.name,
-            content: file.file.content,
-          }))
-        : null,
+    fileIds: fileIds.length > 0 ? fileIds : null,
   });
 
   newMessage.value = "";
@@ -54,52 +65,55 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
   }
 
   // Filter out error messages and map the messages to the required API format
-  const apiMessages = messages.value
-    .filter((message) => message.role !== 2) // Do not send error messages to the API
-    .map((message) => {
-      let role;
-      switch (message.role) {
-        case 0:
-          role = "user";
-          break;
-        case 1:
-          role = "assistant";
-          break;
-        case 2:
-          role = "error";
-          break;
-        case 3:
-          role = "system";
-          break;
-      }
-
-      if (message.files && message.files.length > 0) {
-        const content = [];
-
-        if (message.text) {
-          content.push({ type: "text", text: message.text });
+  const apiMessages = await Promise.all(
+    messages.value
+      .filter((message) => message.role !== 2) // Do not send error messages to the API
+      .map(async (message) => {
+        let role;
+        switch (message.role) {
+          case 0:
+            role = "user";
+            break;
+          case 1:
+            role = "assistant";
+            break;
+          case 2:
+            role = "error";
+            break;
+          case 3:
+            role = "system";
+            break;
         }
 
-        message.files.forEach((file) => {
-          content.push({
-            type: "image_url",
-            image_url: {
-              url: file.content,
-            },
-          });
-        });
+        if (message.fileIds && message.fileIds.length > 0) {
+          const files = await getFilesByIds(message.fileIds);
+          const content = [];
 
-        return {
-          role: role,
-          content: content,
-        };
-      } else {
-        return {
-          role: role,
-          content: message.text,
-        };
-      }
-    });
+          if (message.text) {
+            content.push({ type: "text", text: message.text });
+          }
+
+          files.forEach((file) => {
+            content.push({
+              type: "image_url",
+              image_url: {
+                url: file.content,
+              },
+            });
+          });
+
+          return {
+            role: role,
+            content: content,
+          };
+        } else {
+          return {
+            role: role,
+            content: message.text,
+          };
+        }
+      })
+  );
 
   // Add the system message at the beginning of apiMessages
   if (settings.prompt.value && settings.prompt.value.trim() !== "") {
@@ -137,18 +151,6 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
   if (!isError) {
     messages.value.push({ text: "", role: 1 });
   }
-
-  let chatId = null;
-  isNoAbort = true;
-
-  // Create or use selected chat ID
-  if (selectedChatId.value === null) {
-    chatId = await createChat(messages.value[0].text);
-  } else {
-    chatId = selectedChatId.value;
-  }
-
-  isNoAbort = false;
 
   // Save the chat if there was an error, otherwise process the response stream
   if (isError) {

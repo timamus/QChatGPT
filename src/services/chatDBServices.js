@@ -13,16 +13,46 @@ export let selectedChatId = ref(null);
 export let lastApiCallTime = ref(null);
 
 // Fetch all chats from the database, sort them, and select the most recent one
-export const fetchChats = async () => {
+export const fetchChats = async (filterWord) => {
   const loadedChats = await db.chats.toArray();
+
   // Check if there are any chats
   if (loadedChats.length > 0) {
+    let filteredChats;
+
+    if (filterWord) {
+      // Convert filterWord to lowercase for case-insensitive search
+      const lowerFilterWord = filterWord.toLowerCase();
+
+      // Filter chats based on the filter word in messages
+      filteredChats = loadedChats.filter((chat) =>
+        chat.messages.some(
+          (message) =>
+            message.role === 0 &&
+            message.text.toLowerCase().includes(lowerFilterWord)
+        )
+      );
+    } else {
+      // If filterWord is empty, don't filter, just use all chats
+      filteredChats = loadedChats;
+    }
+
     // Sort chats by the last modified date, starting with the most recent
-    const sortedChats = loadedChats.sort(
+    const sortedChats = filteredChats.sort(
       (a, b) => b.lastModified - a.lastModified
     );
-    chats.value = sortedChats;
-    return chats.value[0].id;
+
+    // Map to only include the required fields
+    const mappedChats = sortedChats.map((chat) => ({
+      id: chat.id,
+      name: chat.name,
+      lastModified: chat.lastModified,
+    }));
+
+    chats.value = mappedChats;
+
+    // Return the ID of the most recent chat or null if no chats
+    return chats.value.length > 0 ? chats.value[0].id : null;
   }
   return null;
 };
@@ -68,6 +98,7 @@ export const selectChat = async (chatId) => {
 export const clearChats = async () => {
   await selectChat(null);
   await db.chats.clear();
+  await db.files.clear();
   chats.value = [];
 };
 
@@ -90,12 +121,7 @@ export const saveMessagesToChat = async (chatId, newMessages) => {
       .map((message) => ({
         role: message.role,
         text: message.text,
-        files: message.files
-          ? message.files.map((file) => ({
-              name: file.name,
-              content: file.content,
-            }))
-          : null,
+        fileIds: message.fileIds ? Array.from(message.fileIds) : null,
       }));
     // Update the last modified date
     chat.lastModified = new Date();
@@ -116,6 +142,16 @@ export const saveChat = async (chatId, newMessages) => {
 export const deleteChat = async (chatId) => {
   if (chatId) {
     try {
+      // Get id and chatId of all files related to the given chatId
+      const filesToDelete = [];
+      await db.files.where({ chatId }).each((file) => {
+        filesToDelete.push({ id: file.id, chatId: file.chatId });
+      });
+
+      // Delete all files related to the given chatId
+      const fileIdsToDelete = filesToDelete.map((file) => file.id);
+      await db.files.bulkDelete(fileIdsToDelete);
+
       // Delete the chat with the given ID
       await db.chats.delete(chatId);
 
@@ -130,4 +166,31 @@ export const deleteChat = async (chatId) => {
       console.error("Error deleting chat:", error);
     }
   }
+};
+
+// Function to save files to the files table with chatId
+export const saveUploadedFiles = async (chatId, uploadedFiles) => {
+  if (!Array.isArray(uploadedFiles) || uploadedFiles.length === 0) {
+    return []; // Return an empty array if there are no files
+  }
+
+  const fileIds = await Promise.all(
+    uploadedFiles.map(async ({ file }) => {
+      return await db.files.add({
+        chatId,
+        name: file.name,
+        content: file.content,
+      });
+    })
+  );
+
+  return fileIds;
+};
+
+// Function to get file contents by their IDs
+export const getFilesByIds = async (fileIds) => {
+  if (!Array.isArray(fileIds) || fileIds.length === 0) {
+    return []; // Return an empty array if fileIds is null or an empty array
+  }
+  return await db.files.where("id").anyOf(fileIds).toArray();
 };

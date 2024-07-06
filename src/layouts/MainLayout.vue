@@ -35,6 +35,21 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <!-- Search field -->
+      <q-input
+        v-model="search"
+        filled
+        dense
+        type="search"
+        class="q-px-md q-py-sm"
+        style="font-size: 1.1em"
+        maxlength="50"
+        @update:model-value="onSearchInput"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
       <!-- Button to start a new chat -->
       <q-item clickable v-ripple @click="handleNewChat">
         <q-item-section avatar>
@@ -49,7 +64,7 @@
       <q-scroll-area
         :thumb-style="thumbStyle"
         :bar-style="barStyle"
-        style="height: calc(100% - 295px)"
+        style="height: calc(100% - 346px)"
       >
         <q-list v-if="chats.length !== 0">
           <template v-for="chat in groupedChats" :key="chat.id">
@@ -189,6 +204,12 @@ const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+const search = ref("");
+
+const onSearchInput = async () => {
+  await fetchChats(search.value);
+};
 
 onMounted(async () => {
   loadSettings(); // Load settings
