@@ -7,7 +7,7 @@
   >
     <q-card class="q-dialog-plugin acrylic-effect">
       <q-card-section>
-        <div class="text-h6">Delete chat?</div>
+        <div class="text-h5">Delete chat?</div>
       </q-card-section>
 
       <q-separator />

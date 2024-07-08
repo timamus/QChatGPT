@@ -214,6 +214,11 @@ const onSearchInput = async () => {
 onMounted(async () => {
   loadSettings(); // Load settings
 
+  // Show settings dialog if API key is missing
+  if (!settings.apiKey.value.trim()) {
+    showSettingsDialog();
+  }
+
   selectedChatId.value = await handleGetChats();
   await handleSelectChat(selectedChatId.value);
 });

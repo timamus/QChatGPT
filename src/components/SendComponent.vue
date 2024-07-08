@@ -53,7 +53,7 @@
     filled
     v-model="newMessage"
     label="Send a message"
-    @keydown.enter.prevent="newMessage ? sendMessage() : null"
+    @keydown.enter.prevent="handleEnterPress"
     class="q-px-md q-pt-md my-input flex items-end"
     :input-style="{ maxHeight: '284px' }"
     clearable
@@ -89,12 +89,13 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import {
   sendMessage as sendOpenAIMessage,
   abortStream,
   isLoading,
 } from "../services/openAIServices.js";
+import { settings } from "src/settings";
 
 const newMessage = ref("");
 // Variables for file upload
@@ -104,8 +105,36 @@ const uploadedFiles = ref([]); // List of uploaded files
 const uploadProgressLabel = ref("0%"); // Upload progress label
 const isUploading = ref(false); // Flag indicating upload process
 
+const isValidMessage = (message) => {
+  // Trim the message and check if it's not empty
+  return message.trim().length > 0;
+};
+
 const sendMessage = async () => {
-  await sendOpenAIMessage(newMessage, uploadedFiles, uploader);
+  if (newMessage.value && isValidMessage(newMessage.value)) {
+    await sendOpenAIMessage(newMessage, uploadedFiles, uploader);
+  }
+};
+
+const handleEnterPress = (event) => {
+  if (event.ctrlKey) {
+    // Send message if Ctrl + Enter is pressed
+    sendMessage();
+  } else if (settings.sendOnEnter.value) {
+    // Send message if Enter is pressed and sendOnEnter is true
+    sendMessage();
+  } else {
+    // Insert a new line if sendOnEnter is false
+    const position = event.target.selectionStart;
+    newMessage.value =
+      newMessage.value.slice(0, position) +
+      "\n" +
+      newMessage.value.slice(position);
+    nextTick(() => {
+      event.target.selectionStart = position + 1;
+      event.target.selectionEnd = position + 1;
+    });
+  }
 };
 
 const triggerUpload = (event) => {

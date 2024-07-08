@@ -8,7 +8,7 @@
     <q-card class="q-dialog-plugin acrylic-effect">
       <q-card-section class="row items-center">
         <q-avatar icon="info" color="primary" text-color="white" size="32px" />
-        <span class="text-h6 q-ml-sm">About Us</span>
+        <span class="text-h5 q-ml-sm">About Us</span>
       </q-card-section>
 
       <q-separator />
@@ -77,7 +77,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   width: 480px;
   max-width: 80vw;
   height: 680px;
-  max-height: 80vh;
+  max-height: 90vh;
   font-size: 1.1em;
 }
 

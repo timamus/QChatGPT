@@ -54,6 +54,7 @@ export const fetchChats = async (filterWord) => {
     // Return the ID of the most recent chat or null if no chats
     return chats.value.length > 0 ? chats.value[0].id : null;
   }
+  chats.value = [];
   return null;
 };
 

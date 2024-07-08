@@ -6,9 +6,8 @@
     transition-hide="jump-up"
   >
     <q-card class="q-dialog-plugin acrylic-effect">
-      <!-- <q-card class="q-dialog-plugin"> -->
       <q-card-section>
-        <div class="text-h6">Settings</div>
+        <div class="text-h5">Settings</div>
       </q-card-section>
 
       <q-separator />
@@ -19,14 +18,32 @@
         class="q-dialog-scroll-area"
       >
         <q-card-section>
+          <div class="q-mb-md text-h6">Appearance</div>
+          <div class="row justify-between items-center toggle">
+            <span>Sending by pressing Enter</span>
+            <q-toggle v-model="settings.sendOnEnter.value" />
+          </div>
+          <div class="q-pt-xs text-left toggle-hint">
+            Line break, in this case, will be possible by pressing Ctrl + Enter
+          </div>
+        </q-card-section>
+        <q-card-section>
+          <div class="q-mb-md text-h6">General settings</div>
           <q-input
             filled
             v-model="settings.apiKey.value"
             label="Enter your OpenAI API Key"
             class="input-api-key q-mb-md"
             maxlength="150"
-            clearable
-          />
+          >
+            <template v-if="settings.apiKey.value" v-slot:append>
+              <q-icon
+                name="cancel"
+                @click.stop.prevent="settings.apiKey.value = ''"
+                class="cursor-pointer"
+              />
+            </template>
+          </q-input>
           <!-- Model selection and refresh button -->
           <div class="row items-center">
             <!-- Model dropdown -->
@@ -61,8 +78,15 @@
             maxlength="3000"
             class="prompt"
             input-class="scrollbar-styled"
-            clearable
-          />
+          >
+            <template v-if="settings.prompt.value" v-slot:append>
+              <q-icon
+                name="cancel"
+                @click.stop.prevent="settings.prompt.value = ''"
+                class="cursor-pointer"
+              />
+            </template>
+          </q-input>
           <div class="q-mt-md">
             <q-badge color="primary"
               >Temperature: {{ settings.temperature.value }} (0 to 2)</q-badge
@@ -181,15 +205,25 @@ const loadModels = async () => {
 
 <style scoped>
 .q-dialog-plugin {
-  width: 400px;
+  width: 440px;
   max-width: 80vw;
-  height: 560px;
-  max-height: 80vh;
+  height: 90vh;
+  max-height: 90vh;
 }
 
 .q-dialog-scroll-area {
   height: calc(100% - 117px);
   padding-right: 5px;
+}
+
+.toggle {
+  width: 100%;
+  font-size: 1.1em;
+}
+
+.toggle-hint {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .input-api-key {

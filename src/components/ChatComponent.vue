@@ -179,7 +179,7 @@ watch(lastApiCallTime, (newTime, oldTime) => {
 }
 
 .tip-button {
-  border: 1px solid rgba(255, 255, 255, 0.28); /* Установите свой цвет границы */
+  border: 1px solid rgba(255, 255, 255, 0.28);
   color: rgba(255, 255, 255, 0.7);
   border-radius: 15px;
   width: 100%;

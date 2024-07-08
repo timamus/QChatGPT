@@ -7,7 +7,7 @@
   >
     <q-card class="q-dialog-plugin acrylic-effect">
       <q-card-section>
-        <div class="text-h6">Clear chat history?</div>
+        <div class="text-h5">Clear chat history?</div>
       </q-card-section>
 
       <q-separator />

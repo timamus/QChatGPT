@@ -12,6 +12,7 @@ export const settings = {
   frequency_penalty: ref(0),
   presence_penalty: ref(0),
   prompt: ref(""),
+  sendOnEnter: ref(true),
 };
 
 export function loadSettings() {
@@ -24,6 +25,7 @@ export function loadSettings() {
     "frequency_penalty",
     "presence_penalty",
     "prompt",
+    "sendOnEnter",
   ];
 
   keys.forEach((key) => {
@@ -40,6 +42,8 @@ export function loadSettings() {
         ].includes(key)
       ) {
         settings[key].value = parseFloat(value);
+      } else if (key === "sendOnEnter") {
+        settings[key].value = value === "true";
       } else {
         settings[key].value = value;
       }
@@ -62,6 +66,7 @@ export function saveSettings() {
     settings.presence_penalty.value.toString()
   );
   LocalStorage.set("prompt", settings.prompt.value);
+  LocalStorage.set("sendOnEnter", settings.sendOnEnter.value.toString());
 }
 
 // Automatically save settings when they change
