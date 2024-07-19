@@ -11,6 +11,7 @@ import {
   saveChat,
   saveUploadedFiles,
   getFilesByIds,
+  saveImage,
 } from "../services/chatDBServices.js";
 
 function getOpenAI() {
@@ -25,7 +26,12 @@ export let isLoading = ref(false);
 let isNoAbort = false;
 
 // Send a new message to the OpenAI API and handle the response stream
-export async function sendMessage(newMessage, uploadedFiles, uploader) {
+export async function sendMessage(
+  newMessage,
+  uploadedFiles,
+  uploader,
+  isImageGeneration
+) {
   // Ensure input is not empty and response is not in progress
   if (!newMessage.value || isLoading.value) {
     return;
@@ -67,7 +73,8 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
   // Filter out error messages and map the messages to the required API format
   const apiMessages = await Promise.all(
     messages.value
-      .filter((message) => message.role !== 2) // Do not send error messages to the API
+      // Do not send error and Dall-E messages to the API
+      .filter((message) => message.role !== 2 && message.role !== 4)
       .map(async (message) => {
         let role;
         switch (message.role) {
@@ -127,26 +134,51 @@ export async function sendMessage(newMessage, uploadedFiles, uploader) {
 
   const openai = getOpenAI();
 
-  // Send messages to the OpenAI API and handle the response stream
-  stream = await openai.chat.completions
-    .create({
-      model: settings.model.value,
-      messages: apiMessages,
-      temperature: settings.temperature.value,
-      top_p: settings.top_p.value,
-      frequency_penalty: settings.frequency_penalty.value,
-      presence_penalty: settings.presence_penalty.value,
-      stream: true,
-    })
-    .catch(async (err) => {
-      console.log(err.status); // 400
-      console.log(err.name); // BadRequestError
+  if (isImageGeneration.value === false) {
+    // Send messages to the OpenAI API and handle the response stream
+    stream = await openai.chat.completions
+      .create({
+        model: settings.model.value,
+        messages: apiMessages,
+        temperature: settings.temperature.value,
+        top_p: settings.top_p.value,
+        frequency_penalty: settings.frequency_penalty.value,
+        presence_penalty: settings.presence_penalty.value,
+        stream: true,
+      })
+      .catch(async (err) => {
+        console.log(err.status); // 400
+        console.log(err.name); // BadRequestError
+        console.log(err.message);
+        console.log(err.headers); // {server: 'nginx', ...}
+        isError = true;
+        messages.value.push({ text: "Error: " + err.message, role: 2 });
+        //throw err;
+      });
+  } else {
+    // Generate image using OpenAI API
+    try {
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: messages.value[messages.value.length - 1].text,
+        n: 1,
+        size: settings.imageSize.value,
+        style: settings.imageStyle.value,
+        response_format: "b64_json",
+      });
+      const image_url = response.data[0].b64_json;
+      const imageId = await saveImage(chatId, image_url);
+      messages.value.push({ text: "", role: 4, imageId: imageId });
+      // Save chat to the database if the messages array changes
+      chatId = await saveChat(chatId, messages.value);
+      isLoading.value = false;
+      return;
+    } catch (err) {
       console.log(err.message);
-      console.log(err.headers); // {server: 'nginx', ...}
       isError = true;
       messages.value.push({ text: "Error: " + err.message, role: 2 });
-      //throw err;
-    });
+    }
+  }
 
   if (!isError) {
     messages.value.push({ text: "", role: 1 });

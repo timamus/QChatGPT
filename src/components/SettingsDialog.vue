@@ -17,7 +17,7 @@
         :bar-style="barStyle"
         class="q-dialog-scroll-area"
       >
-        <q-card-section>
+        <q-card-section class="q-mb-md">
           <div class="q-mb-md text-h6">Appearance</div>
           <div class="row justify-between items-center toggle">
             <span>Sending by pressing Enter</span>
@@ -27,13 +27,13 @@
             Line break, in this case, will be possible by pressing Ctrl + Enter
           </div>
         </q-card-section>
-        <q-card-section>
+        <q-card-section class="q-mb-md">
           <div class="q-mb-md text-h6">General settings</div>
           <q-input
             filled
             v-model="settings.apiKey.value"
             label="Enter your OpenAI API Key"
-            class="input-api-key q-mb-md"
+            class="input-api-key q-mt-lg"
             maxlength="150"
           >
             <template v-if="settings.apiKey.value" v-slot:append>
@@ -53,14 +53,14 @@
               :options="settings.models.value"
               label="Select OpenAI Model"
               popup-content-class="popup-styled scrollbar-styled"
-              class="model-selector q-mb-md col"
+              class="model-selector q-mt-lg col"
             />
             <!-- Refresh button -->
             <q-btn
               flat
               :loading="loading"
               color="primary"
-              class="q-mb-md col-auto custom-btn-height"
+              class="q-mt-lg col-auto custom-btn-height"
               @click="loadModels"
             >
               <q-icon name="refresh" size="32px" />
@@ -76,7 +76,7 @@
             label="System Prompt"
             hint="Max 3000 characters"
             maxlength="3000"
-            class="prompt"
+            class="prompt q-mt-lg"
             input-class="scrollbar-styled"
           >
             <template v-if="settings.prompt.value" v-slot:append>
@@ -87,7 +87,7 @@
               />
             </template>
           </q-input>
-          <div class="q-mt-md">
+          <div class="q-mt-lg">
             <q-badge color="primary"
               >Temperature: {{ settings.temperature.value }} (0 to 2)</q-badge
             >
@@ -100,7 +100,7 @@
               class="col-grow custom-slider"
             />
           </div>
-          <div class="q-mt-md">
+          <div class="q-mt-lg">
             <q-badge color="primary"
               >Top P: {{ settings.top_p.value }} (0 to 1)</q-badge
             >
@@ -113,7 +113,7 @@
               class="col-grow custom-slider"
             />
           </div>
-          <div class="q-mt-md">
+          <div class="q-mt-lg">
             <q-badge color="primary"
               >Frequency penalty: {{ settings.frequency_penalty.value }} (-2 to
               2)</q-badge
@@ -127,7 +127,7 @@
               class="col-grow custom-slider"
             />
           </div>
-          <div class="q-mt-md">
+          <div class="q-mt-lg">
             <q-badge color="primary"
               >Presence penalty: {{ settings.presence_penalty.value }} (-2 to
               2)</q-badge
@@ -142,9 +142,35 @@
             />
           </div>
         </q-card-section>
+        <q-card-section class="q-mb-md">
+          <div class="q-mb-md text-h6">Dall-E settings</div>
+          <q-select
+            filled
+            v-model="settings.imageSize.value"
+            :options="[
+              '256x256',
+              '512x512',
+              '1024x1024',
+              '1792x1024',
+              '1024x1729',
+            ]"
+            label="Select Image Size"
+            popup-content-class="popup-styled scrollbar-styled"
+            class="model-selector q-mt-lg col"
+          />
+          <q-select
+            filled
+            v-model="settings.imageStyle.value"
+            :options="['vivid', 'natural']"
+            label="Select Image Style"
+            popup-content-class="popup-styled scrollbar-styled"
+            class="model-selector q-mt-lg col"
+          />
+        </q-card-section>
       </q-scroll-area>
       <q-card-actions align="right">
         <!-- <q-btn flat label="Cancel" color="primary" @click="onDialogCancel" /> -->
+        <q-btn flat label="RESET" color="negative" @click="resetSettings" />
         <q-btn flat label="OK" color="primary" @click="onOKClick" />
       </q-card-actions>
     </q-card>
@@ -174,6 +200,16 @@ function onOKClick() {
   onDialogOK();
 }
 
+// Function to reset settings to default values
+const resetSettings = () => {
+  settings.temperature.value = 1;
+  settings.top_p.value = 1;
+  settings.frequency_penalty.value = 0;
+  settings.presence_penalty.value = 0;
+  settings.imageSize.value = "1024x1024";
+  settings.imageStyle.value = "vivid";
+};
+
 const loading = ref(false);
 
 // Load models and update local storage
@@ -195,7 +231,8 @@ const loadModels = async () => {
       type: "negative",
       color: "red",
       position: "bottom",
-      message: message,
+      message: `<span style="font-size: 1.1em;">${message}</span>`,
+      html: true,
     });
   } finally {
     loading.value = false;

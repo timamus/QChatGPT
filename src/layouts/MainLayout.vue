@@ -139,7 +139,7 @@
         </q-item-section>
       </q-item>
       <!-- Button to copy the link to the API purchase page -->
-      <q-item clickable v-ripple @click="copyLink">
+      <q-item clickable v-ripple @click="openApiLink">
         <q-item-section avatar>
           <q-icon name="link" />
         </q-item-section>
@@ -148,9 +148,9 @@
         </q-item-section>
       </q-item>
       <!-- Button for donations -->
-      <q-item clickable v-ripple>
+      <q-item clickable v-ripple @click="openDonateLink">
         <q-item-section avatar>
-          <q-icon name="favorite" color="purple" />
+          <q-icon name="favorite" color="deep-purple" />
         </q-item-section>
         <q-item-section>
           <q-item-label>Donate</q-item-label>
@@ -185,7 +185,7 @@ import AboutDialog from "src/components/AboutDialog.vue";
 import DeleteChatDialog from "src/components/DeleteChatDialog.vue";
 import ClearChatsDialog from "src/components/ClearChatsDialog.vue";
 import SendComponent from "src/components/SendComponent.vue";
-import { useQuasar, copyToClipboard, date } from "quasar";
+import { useQuasar, openURL, date } from "quasar";
 import {
   selectedChatId,
   chats,
@@ -313,35 +313,19 @@ function showAboutDialog() {
 }
 
 /**
- * Copies the OpenAI billing page link to the clipboard
+ * Opens the OpenAI billing page link
  */
-const copyLink = async () => {
+const openApiLink = async () => {
   closeDrawerIfOverlay();
-  // Attempt to copy the link to the clipboard
-  await copyToClipboard(
-    "https://platform.openai.com/settings/organization/billing/overview"
-  )
-    .then(() => {
-      // Show a success notification if the copy operation is successful
-      $q.notify({
-        color: "green",
-        position: "bottom",
-        message: "Link Copied",
-        icon: "done",
-        timeout: 2000,
-      });
-    })
-    .catch(() => {
-      // Show an error notification if the copy operation fails
-      $q.notify({
-        color: "red",
-        position: "bottom",
-        message: "Failed to copy link",
-        icon: "error",
-        timeout: 2000,
-      });
-      console.error("Failed to copy link:", error);
-    });
+  openURL("https://platform.openai.com/settings/organization/billing/overview");
+};
+
+/**
+ * Opens the donation link
+ */
+const openDonateLink = async () => {
+  closeDrawerIfOverlay();
+  openURL("https://paypal.me/tmusab");
 };
 
 // Close the left drawer menu if in overlay mode

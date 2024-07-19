@@ -68,6 +68,13 @@
         <q-btn
           round
           flat
+          icon="sym_o_imagesmode"
+          :color="isImageGeneration ? 'green' : ''"
+          @click="isImageGeneration = !isImageGeneration"
+        ></q-btn>
+        <q-btn
+          round
+          flat
           icon="send"
           @click="sendMessage"
           :disable="isLoading"
@@ -78,7 +85,7 @@
           flat
           icon="stop_circle"
           @click="abortStream"
-          v-if="isLoading"
+          v-if="isLoading && !isImageGeneration"
         />
       </div>
     </template>
@@ -98,6 +105,7 @@ import {
 import { settings } from "src/settings";
 
 const newMessage = ref("");
+const isImageGeneration = ref(false);
 // Variables for file upload
 const uploader = ref(null); // File uploader
 const hasFiles = ref(false); // Flag indicating if files are present
@@ -112,7 +120,12 @@ const isValidMessage = (message) => {
 
 const sendMessage = async () => {
   if (newMessage.value && isValidMessage(newMessage.value)) {
-    await sendOpenAIMessage(newMessage, uploadedFiles, uploader);
+    await sendOpenAIMessage(
+      newMessage,
+      uploadedFiles,
+      uploader,
+      isImageGeneration
+    );
   }
 };
 

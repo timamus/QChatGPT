@@ -1,9 +1,9 @@
 <template>
   <!-- List of messages; only displayed if there are messages -->
-  <q-list v-if="transformedMessages.length !== 0">
+  <q-list v-if="messages.length !== 0">
     <!-- Iterate through each message -->
     <q-item
-      v-for="message in transformedMessages"
+      v-for="message in messages"
       :key="message.id"
       :class="{
         'sent-message': message.role === 0,
@@ -15,8 +15,12 @@
       <q-avatar size="30px" class="q-mx-md" v-if="message.role === 0">
         <img src="~assets/Font_Awesome_5_solid_user-circle.svg" />
       </q-avatar>
-      <!-- Display avatar for ChatGPT -->
-      <q-avatar size="30px" class="q-mx-md" v-if="message.role === 1">
+      <!-- Display avatar for ChatGPT and ChatGPT with Dall-E-->
+      <q-avatar
+        size="30px"
+        class="q-mx-md"
+        v-if="message.role === 1 || message.role === 4"
+      >
         <img src="~assets/qchatgpt-logo-green.svg" />
       </q-avatar>
       <!-- Display warning icon for system messages -->
@@ -31,74 +35,73 @@
       />
       <q-item-section class="custom-message">
         <q-item-label class="text-subtitle1">{{
-          message.role === 0 ? "You" : "ChatGPT"
+          message.role === 0
+            ? "You"
+            : message.role === 4
+            ? "ChatGPT with Dall-E"
+            : "ChatGPT"
         }}</q-item-label>
         <!-- Block for displaying user files -->
-        <div v-if="message.files">
-          <div v-for="file in message.files" :key="file.name" class="file-item">
-            <q-card class="card-file" flat bordered>
-              <q-card-section class="row no-wrap items-center">
-                <q-icon
-                  name="file_present"
-                  class="q-ma-xs col-auto flex flex-center"
-                  size="32px"
-                ></q-icon>
-                <div class="col">{{ file.name }}</div>
-              </q-card-section>
-            </q-card>
-          </div>
-        </div>
+        <FileViewer v-if="message.fileIds" :fileIds="message.fileIds" />
         <!-- Display plain text for user messages -->
         <template v-if="message.role === 0">
           <pre class="pre-wrap">{{ message.text }}</pre>
         </template>
         <!-- Display processed text for ChatGPT or system messages -->
-        <template
-          v-else
-          v-for="(part, index) in splitMessage(message.text)"
-          :key="'template-' + index"
-        >
-          <pre
-            class="pre-wrap"
-            v-if="!isCode(part)"
-            :key="'text-' + index"
-            :style="{ color: message.role === 2 ? 'red' : 'whitesmoke' }"
-            >{{ part.trim() }}</pre
+        <template v-else>
+          <!-- image generation form Dall-E -->
+          <ImageViewer v-if="message.imageId" :imageId="message.imageId" />
+          <template
+            v-for="(part, index) in splitMessage(message.text)"
+            :key="'template-' + index"
           >
-          <q-card flat bordered class="card-code" v-else :key="'code-' + index">
-            <q-item>
-              <q-item-section>
-                <q-item-label>
-                  <!-- Language name header for the code block -->
-                  {{ getLanguage(part) }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn @click="copyCode(part)">
-                  <q-icon name="content_copy" />
-                  Copy code
-                </q-btn>
-              </q-item-section>
-            </q-item>
+            <pre
+              class="pre-wrap"
+              v-if="!isCode(part)"
+              :key="'text-' + index"
+              :style="{ color: message.role === 2 ? 'red' : 'whitesmoke' }"
+              >{{ part.trim() }}</pre
+            >
+            <q-card
+              flat
+              bordered
+              class="card-code"
+              v-else
+              :key="'code-' + index"
+            >
+              <q-item>
+                <q-item-section>
+                  <q-item-label>
+                    <!-- Language name header for the code block -->
+                    {{ getLanguage(part) }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn @click="copyCode(part)">
+                    <q-icon name="content_copy" />
+                    Copy code
+                  </q-btn>
+                </q-item-section>
+              </q-item>
 
-            <q-separator />
+              <q-separator />
 
-            <!-- Section to display code highlighting -->
-            <q-card-section style="display: flex; flex: 1 0 0">
-              <div style="display: grid">
-                <div class="pre-content" style="overflow-x: auto">
-                  <highlightjs
-                    style="padding-left: 1em"
-                    :autodetect="false"
-                    :language="getLanguageClass(part)"
-                    :code="highlightCode(part)"
-                  />
+              <!-- Section to display code highlighting -->
+              <q-card-section style="display: flex; flex: 1 0 0">
+                <div style="display: grid">
+                  <div class="pre-content" style="overflow-x: auto">
+                    <highlightjs
+                      style="padding-left: 1em"
+                      :autodetect="false"
+                      :language="getLanguageClass(part)"
+                      :code="highlightCode(part)"
+                    />
+                  </div>
                 </div>
-              </div>
-            </q-card-section>
+              </q-card-section>
 
-            <!-- This code works too, but when you scroll the code, the selection is lost -->
-            <!-- <q-card-section>
+              <!-- This code works too, but when you scroll the code, the selection is lost -->
+              <!-- <q-card-section>
             <q-scroll-area
               :thumb-style="thumbStyle"
               :bar-style="barStyle"
@@ -108,7 +111,8 @@
               <q-resize-observer @resize="onResize" />
             </q-scroll-area>
           </q-card-section> -->
-          </q-card>
+            </q-card>
+          </template>
         </template>
       </q-item-section>
       <!-- Button to copy the entire message block -->
@@ -120,10 +124,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
 import { useQuasar, copyToClipboard } from "quasar";
 import { thumbStyle, barStyle } from "src/styles";
-import { getFilesByIds } from "../services/chatDBServices.js";
+import ImageViewer from "./ImageViewer.vue";
+import FileViewer from "./FileViewer.vue";
 
 const props = defineProps({
   messages: {
@@ -131,34 +135,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-const transformedMessages = ref([]);
-
-// Function to transform the array based on the specified logic
-// This includes retrieving file names by their IDs
-const transformMessages = async (messages) => {
-  transformedMessages.value = await Promise.all(
-    messages.map(async (message) => {
-      let newMessage = { ...message }; // Create a copy of the message object
-      if (newMessage.fileIds && newMessage.fileIds.length > 0) {
-        const files = await getFilesByIds(newMessage.fileIds);
-        newMessage.files = files.map((file) => ({ name: file.name }));
-      } else {
-        newMessage.files = null;
-      }
-      return newMessage;
-    })
-  );
-};
-
-// Watch for changes in props and trigger processing
-watch(
-  () => props.messages,
-  (newData) => {
-    transformMessages(newData);
-  },
-  { immediate: true, deep: true } // deep: true ensures deep watching of array changes
-);
 
 // Function to split messages into text and code parts
 const splitMessage = (text) => {
@@ -259,9 +235,10 @@ const copyCode = async (part) => {
     $q.notify({
       color: "green",
       position: "bottom",
-      message: "Code Copied",
+      message: "<span style='font-size: 1.1em;'>Code Copied</span>",
       icon: "done",
       timeout: 2000,
+      html: true, // Allows HTML content
     });
   });
 };
@@ -272,9 +249,10 @@ const copyBlock = async (text) => {
     $q.notify({
       color: "green",
       position: "bottom",
-      message: "Text Copied",
+      message: "<span style='font-size: 1.1em;'>Text Copied</span>",
       icon: "done",
       timeout: 2000,
+      html: true, // Allows HTML content
     });
   });
 };
@@ -289,14 +267,6 @@ const copyBlock = async (text) => {
 
 .received-message {
   /* background-color: #080e1a; */
-  background: rgba(0, 0, 0, 0) !important;
-}
-
-/* Styling for file card */
-.card-file {
-  margin-bottom: 1em;
-  margin-top: 1em;
-  max-width: 350px;
   background: rgba(0, 0, 0, 0) !important;
 }
 

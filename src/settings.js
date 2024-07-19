@@ -13,6 +13,8 @@ export const settings = {
   presence_penalty: ref(0),
   prompt: ref(""),
   sendOnEnter: ref(true),
+  imageSize: ref("1024x1024"),
+  imageStyle: ref("vivid"),
 };
 
 export function loadSettings() {
@@ -26,6 +28,8 @@ export function loadSettings() {
     "presence_penalty",
     "prompt",
     "sendOnEnter",
+    "imageSize",
+    "imageStyle",
   ];
 
   keys.forEach((key) => {
@@ -67,6 +71,8 @@ export function saveSettings() {
   );
   LocalStorage.set("prompt", settings.prompt.value);
   LocalStorage.set("sendOnEnter", settings.sendOnEnter.value.toString());
+  LocalStorage.set("imageSize", settings.imageSize.value);
+  LocalStorage.set("imageStyle", settings.imageStyle.value);
 }
 
 // Automatically save settings when they change

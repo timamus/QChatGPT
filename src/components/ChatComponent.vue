@@ -45,7 +45,10 @@ import {
   messages,
   lastApiCallTime,
 } from "../services/chatDBServices.js";
-import { sendMessage as sendOpenAIMessage } from "../services/openAIServices.js";
+import {
+  sendMessage as sendOpenAIMessage,
+  isLoading,
+} from "../services/openAIServices.js";
 
 const scrollAreaRef = ref(null);
 const heightQPage = ref(0);
@@ -72,7 +75,7 @@ const TipButtons = [
 ];
 
 const handleTipBtnAction = async (label) => {
-  await sendOpenAIMessage(ref(label), ref([]), null);
+  await sendOpenAIMessage(ref(label), ref([]), null, ref(false));
 };
 
 /**
@@ -95,32 +98,34 @@ function exponentialInterpolate(x, x0, y0, x1, y1) {
 const scrollInfo = ref({});
 
 const onResize = (size) => {
-  // Get the scroll area size
-  const scrollSize = scrollAreaRef.value.getScroll().verticalSize;
-  // Determine the scroll percentage threshold based on content size
-  const x0 = 600;
-  const y0 = 0.85;
-  const x1 = 25000;
-  const y1 = 0.995;
-  let scrollPercentageThreshold =
-    scrollSize <= x0
-      ? y0
-      : scrollSize >= x1
-      ? y1
-      : exponentialInterpolate(scrollSize, x0, y0, x1, y1);
-  // Get the scroll percentage for the top
-  let scrollPercentageTop = scrollAreaRef.value.getScrollPercentage().top;
-  // Check if the value is within the desired range
-  if (
-    scrollPercentageTop >= scrollPercentageThreshold &&
-    scrollPercentageTop <= 1 &&
-    scrollInfo.value.direction === "down"
-  ) {
-    // Scroll to the bottom
-    scrollAreaRef.value.setScrollPosition(
-      "vertical",
-      scrollAreaRef.value.getScroll().verticalSize
-    );
+  if (isLoading.value) {
+    // Get the scroll area size
+    const scrollSize = scrollAreaRef.value.getScroll().verticalSize;
+    // Determine the scroll percentage threshold based on content size
+    const x0 = 600;
+    const y0 = 0.85;
+    const x1 = 25000;
+    const y1 = 0.995;
+    let scrollPercentageThreshold =
+      scrollSize <= x0
+        ? y0
+        : scrollSize >= x1
+        ? y1
+        : exponentialInterpolate(scrollSize, x0, y0, x1, y1);
+    // Get the scroll percentage for the top
+    let scrollPercentageTop = scrollAreaRef.value.getScrollPercentage().top;
+    // Check if the value is within the desired range
+    if (
+      scrollPercentageTop >= scrollPercentageThreshold &&
+      scrollPercentageTop <= 1 &&
+      scrollInfo.value.direction === "down"
+    ) {
+      // Scroll to the bottom
+      scrollAreaRef.value.setScrollPosition(
+        "vertical",
+        scrollAreaRef.value.getScroll().verticalSize
+      );
+    }
   }
 };
 
@@ -153,7 +158,7 @@ watch(selectedChatId, async (newId, oldId) => {
       } else {
         console.error("scrollAreaRef is not defined");
       }
-    }, 100); // 100 milliseconds delay
+    }, 250); // 250 milliseconds delay
   }
 });
 
@@ -171,6 +176,7 @@ watch(lastApiCallTime, (newTime, oldTime) => {
 .q-scroll-area {
   height: 100%;
   width: 100%;
+  contain: none !important;
 }
 
 .tip-button-container {

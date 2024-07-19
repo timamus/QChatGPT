@@ -29,12 +29,43 @@
         </q-card-section>
 
         <q-card-section>
+          <q-btn
+            flat
+            @click="openURL('https://github.com/timamus/QChatGPT')"
+            label="Open GitHub page"
+            color="primary"
+            icon="open_in_new"
+            no-caps
+          />
+        </q-card-section>
+
+        <q-card-section>
           <div class="text-h6">Support</div>
           We work hard to keep making our app better by adding new features.
           Your help is important to us. If you like our app, please consider
           supporting us with a donation through Stripe. We appreciate your
           support, as it helps us do our best. Thank you for being part of our
           community.
+        </q-card-section>
+
+        <q-card-section>
+          <q-btn
+            flat
+            label="Report a problem"
+            color="primary"
+            icon="open_in_new"
+            @click="openURL('https://github.com/timamus/QChatGPT/issues')"
+            class="q-mr-sm"
+            no-caps
+          />
+          <q-btn
+            flat
+            label="Donate"
+            color="primary"
+            icon="open_in_new"
+            @click="openURL('https://paypal.me/tmusab')"
+            no-caps
+          />
         </q-card-section>
 
         <q-card-section>
@@ -48,7 +79,7 @@
 
         <q-card-section>
           <div class="text-h6">Author</div>
-          Developed by Timur M., aka timamus
+          Developed by Timur M.
         </q-card-section>
       </q-scroll-area>
       <q-card-actions align="right">
@@ -59,7 +90,7 @@
 </template>
 
 <script setup>
-import { useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent, openURL } from "quasar";
 import { thumbStyle, barStyle } from "src/styles";
 
 const props = defineProps({

@@ -26,10 +26,9 @@ export const fetchChats = async (filterWord) => {
 
       // Filter chats based on the filter word in messages
       filteredChats = loadedChats.filter((chat) =>
-        chat.messages.some(
-          (message) =>
-            message.role === 0 &&
-            message.text.toLowerCase().includes(lowerFilterWord)
+        chat.messages.some((message) =>
+          //message.role === 0 && // Filter by user messages only
+          message.text.toLowerCase().includes(lowerFilterWord)
         )
       );
     } else {
@@ -100,6 +99,7 @@ export const clearChats = async () => {
   await selectChat(null);
   await db.chats.clear();
   await db.files.clear();
+  await db.images.clear();
   chats.value = [];
 };
 
@@ -123,6 +123,7 @@ export const saveMessagesToChat = async (chatId, newMessages) => {
         role: message.role,
         text: message.text,
         fileIds: message.fileIds ? Array.from(message.fileIds) : null,
+        imageId: message.imageId ? message.imageId : null,
       }));
     // Update the last modified date
     chat.lastModified = new Date();
@@ -143,15 +144,11 @@ export const saveChat = async (chatId, newMessages) => {
 export const deleteChat = async (chatId) => {
   if (chatId) {
     try {
-      // Get id and chatId of all files related to the given chatId
-      const filesToDelete = [];
-      await db.files.where({ chatId }).each((file) => {
-        filesToDelete.push({ id: file.id, chatId: file.chatId });
-      });
-
       // Delete all files related to the given chatId
-      const fileIdsToDelete = filesToDelete.map((file) => file.id);
-      await db.files.bulkDelete(fileIdsToDelete);
+      await db.files.where("chatId").equals(chatId).delete();
+
+      // Delete all images related to the given chatId
+      await db.images.where("chatId").equals(chatId).delete();
 
       // Delete the chat with the given ID
       await db.chats.delete(chatId);
@@ -194,4 +191,45 @@ export const getFilesByIds = async (fileIds) => {
     return []; // Return an empty array if fileIds is null or an empty array
   }
   return await db.files.where("id").anyOf(fileIds).toArray();
+};
+
+/**
+ * Function to save chatId and content to the database with the prefix data:image/png;base64,.
+ * @param {number} chatId - The identifier of the chat
+ * @param {string} content - Base64 formatted content to save
+ * @returns {Promise<number>} - Returns the identifier of the saved record
+ */
+export const saveImage = async (chatId, content) => {
+  try {
+    // Add prefix to the content
+    const prefixedContent = `data:image/png;base64,${content}`;
+
+    // Save to the database and get the id of the saved record
+    const id = await db.images.add({ chatId, content: prefixedContent });
+
+    return id;
+  } catch (error) {
+    console.error("Error saving image to the database:", error);
+    throw error;
+  }
+};
+
+/**
+ * Function to get a record by its identifier.
+ * @param {number} imageId - The identifier of the image
+ * @returns {Promise<Object|null>} - Returns an object with the image data or null if the record is not found
+ */
+export const getImageById = async (imageId) => {
+  try {
+    if (imageId) {
+      // Get the record from the database by its identifier
+      const imageRecord = await db.images.get(imageId);
+
+      return imageRecord;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error retrieving image record from the database:", error);
+    throw error;
+  }
 };
