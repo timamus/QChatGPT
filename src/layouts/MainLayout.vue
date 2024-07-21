@@ -46,7 +46,7 @@
         maxlength="50"
         @update:model-value="onSearchInput"
       >
-        <template v-slot:prepend>
+        <template v-slot:append>
           <q-icon name="search" />
         </template>
       </q-input>

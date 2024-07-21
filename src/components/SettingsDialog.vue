@@ -44,6 +44,19 @@
               />
             </template>
           </q-input>
+          <q-btn
+            flat
+            @click="
+              openURL(
+                'https://platform.openai.com/settings/profile?tab=api-keys'
+              )
+            "
+            label="Obtain API key"
+            color="primary"
+            icon="open_in_new"
+            no-caps
+            class="q-mt-sm"
+          />
           <!-- Model selection and refresh button -->
           <div class="row items-center">
             <!-- Model dropdown -->
@@ -179,7 +192,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent, openURL } from "quasar";
 import { settings } from "src/settings";
 import { thumbStyle, barStyle } from "src/styles";
 import { useQuasar } from "quasar";

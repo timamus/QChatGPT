@@ -1,6 +1,6 @@
 {
   "name": "qchatgpt",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "ChatGPT cross-platform client made with Quasar Framework",
   "productName": "QChatGPT",
   "author": "timamus <timamus@gmail.com>",
@@ -23,6 +23,7 @@
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
+    "@electron/packager": "^18.3.2",
     "@quasar/app-vite": "^1.9.0",
     "autoprefixer": "^10.4.2",
     "electron": "^31.2.1",

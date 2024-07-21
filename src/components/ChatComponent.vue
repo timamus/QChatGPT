@@ -16,20 +16,32 @@
       class="flex flex-center self-end"
       :style="{ 'margin-top': `${marginTop}px`, width: '100%' }"
     >
-      <q-resize-observer @resize="onResizeTipPanel" />
-      <div class="row q-col-gutter-md tip-button-container">
-        <div
-          class="col-6 col-sm-3"
-          v-for="button in TipButtons"
-          :key="button.label"
-        >
-          <q-btn
-            :icon="button.icon"
-            :label="button.label"
-            class="tip-button"
-            no-caps
-            @click="() => handleTipBtnAction(button.label)"
+      <div>
+        <q-resize-observer @resize="onResizeTipPanel" />
+
+        <!-- Logo in the center -->
+        <div class="q-pb-xl row flex-center">
+          <q-img
+            src="~assets/QChatGPT_logo.svg"
+            alt="QChatGPT Logo"
+            style="width: 55px; height: 55px"
           />
+        </div>
+
+        <div class="row q-col-gutter-md tip-button-container">
+          <div
+            class="col-6 col-sm-3"
+            v-for="button in TipButtons"
+            :key="button.label"
+          >
+            <q-btn
+              :icon="button.icon"
+              :label="button.label"
+              class="tip-button"
+              no-caps
+              @click="() => handleTipBtnAction(button.label)"
+            />
+          </div>
         </div>
       </div>
     </div>
