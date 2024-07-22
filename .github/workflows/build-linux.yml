@@ -1,0 +1,67 @@
+name: Build and Release QChatGPT for Linux
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install Quasar CLI
+      run: npm install -g @quasar/cli
+
+    - name: Build Quasar Electron App
+      run: quasar build -m electron
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: qchatgpt
+        path: dist/electron/*
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: qchatgpt
+        path: dist/electron
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Linux Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/electron/QChatGPT.AppImage
+        asset_name: QChatGPT.AppImage
+        asset_content_type: application/octet-stream
