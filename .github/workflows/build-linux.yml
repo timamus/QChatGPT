@@ -64,21 +64,24 @@ jobs:
         name: qchatgpt
         path: dist/electron/Packaged
 
+    - name: Setup gh CLI
+      run: |
+        sudo apt-get install -y jq
+        curl -s https://api.github.com/repos/cli/cli/releases/latest | jq -r '.assets[] | select(.name | match("linux_amd64.deb$")) | .browser_download_url' | xargs sudo dpkg -i
+
+    - name: Authenticate gh CLI
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: gh auth login --with-token <<< $GH_TOKEN
+
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-      with:
-        tag_name: v${{ env.VERSION }}
-        release_name: Release v${{ env.VERSION }}
-        draft: false
-        prerelease: false
+      run: |
+        gh release create v${{ env.VERSION }} dist/electron/Packaged/QChatGPT-linux-x64.zip -t "Release v${{ env.VERSION }}" -n "Release v${{ env.VERSION }}" --target main --draft=false --prerelease=false
 
-    - name: Upload Linux Release Asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/electron/Packaged/QChatGPT-linux-x64.zip
-        asset_name: QChatGPT-linux-x64.zip
-        asset_content_type: application/zip
+    - name: Publish Release
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: gh release edit "v${{ env.VERSION }}" --draft=false
