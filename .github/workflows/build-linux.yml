@@ -1,4 +1,4 @@
-name: Build and Release QChatGPT for Linux
+name: Main
 
 on:
   push:
@@ -11,77 +11,48 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16.x'
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Install Quasar CLI
-      run: npm install -g @quasar/cli
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
 
-    - name: Build Quasar Electron App
-      run: quasar build -m electron
+      - name: Build Quasar Electron App
+        run: quasar build -m electron
 
-    - name: Create ZIP Archive
-      run: |
-        cd dist/electron/Packaged
-        zip -r QChatGPT-linux-x64.zip QChatGPT-linux-x64
+      - name: Create ZIP Archive
+        run: |
+          cd dist/electron/Packaged
+          zip -r QChatGPT-linux-x64.zip QChatGPT-linux-x64
 
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: qchatgpt
-        path: dist/electron/Packaged/QChatGPT-linux-x64.zip
-      
-  release:
-    runs-on: ubuntu-latest
-    needs: build
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: qchatgpt
+          path: dist/electron/Packaged/QChatGPT-linux-x64.zip
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Create Release Info
+        run: echo ${{ github.sha }} > Release.txt
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16.x'
+      - name: Test
+        run: cat Release.txt
 
-    - name: Get version from package.json
-      id: get_version
-      run: echo "VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
-
-    - name: Download Build Artifacts
-      uses: actions/download-artifact@v2
-      with:
-        name: qchatgpt
-        path: dist/electron/Packaged
-
-    - name: Setup gh CLI
-      run: |
-        sudo apt-get install -y jq
-        curl -s https://api.github.com/repos/cli/cli/releases/latest | jq -r '.assets[] | select(.name | match("linux_amd64.deb$")) | .browser_download_url' | xargs sudo dpkg -i
-
-    - name: Authenticate gh CLI
-      env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: gh auth login --with-token <<< $GH_TOKEN
-
-    - name: Create Release
-      id: create_release
-      env:
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: |
-        gh release create v${{ env.VERSION }} dist/electron/Packaged/QChatGPT-linux-x64.zip -t "Release v${{ env.VERSION }}" -n "Release v${{ env.VERSION }}" --target main --draft=false --prerelease=false
-
-    - name: Publish Release
-      env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: gh release edit "v${{ env.VERSION }}" --draft=false
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/electron/Packaged/QChatGPT-linux-x64.zip
+            Release.txt
+            LICENSE
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
