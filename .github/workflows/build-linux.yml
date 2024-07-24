@@ -48,11 +48,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: qchatgpt
-
       - name: Get version from package.json
         id: get_version
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
