@@ -63,6 +63,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
+          ls -la # Проверка структуры директорий
           gh release create "v$(date +'%Y%m%d%H%M%S')" dist/electron/Packaged/QChatGPT-linux-x64.zip -t "Release $(date +'%Y-%m-%d %H:%M:%S')" -n "Release notes for $(date +'%Y-%m-%d %H:%M:%S')" --target main
 
       - name: Cleanup Old Releases
