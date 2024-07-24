@@ -153,6 +153,9 @@ jobs:
           api-level: 30
           build-tools: 30.0.3
 
+      - name: Install Gradle
+        run: sudo apt-get install -y gradle
+
       - name: Build Quasar Capacitor App for Android
         run: quasar build -m capacitor -T android
 
