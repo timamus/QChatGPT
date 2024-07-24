@@ -69,8 +69,8 @@ jobs:
       - name: Create ZIP Archive for Windows
         run: |
           cd dist/electron/Packaged
-          ls -la # Check directory structure
-          zip -r QChatGPT-win32-x64.zip QChatGPT-win32-x64
+          Get-ChildItem -Force # Check directory structure
+          Compress-Archive -Path QChatGPT-win32-x64 -DestinationPath QChatGPT-win32-x64.zip
 
       - name: Upload Windows Build Artifacts
         uses: actions/upload-artifact@v2
