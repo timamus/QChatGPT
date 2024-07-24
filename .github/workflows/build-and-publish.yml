@@ -140,6 +140,10 @@ jobs:
         with:
             node-version: ${{ matrix.node-version }}
       - run: yarn install && yarn global add @quasar/cli
+
+      - name: Install Capacitor Android
+        run: npm install @capacitor/android
+      
       - run: quasar build -m capacitor -T android --skip-pkg
       - run: chmod +x ./src-capacitor/android/gradlew
       
