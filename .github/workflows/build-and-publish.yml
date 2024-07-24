@@ -107,6 +107,7 @@ jobs:
       - name: Create ZIP Archive for MacOS
         run: |
           cd dist/electron/Packaged
+          ls -la # Check directory structure
           zip -r QChatGPT-darwin-x64.zip QChatGPT-darwin-x64
 
       - name: Upload MacOS Build Artifacts
