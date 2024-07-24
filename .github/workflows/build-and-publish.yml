@@ -139,11 +139,11 @@ jobs:
       - name: Install Quasar CLI
         run: npm install -g @quasar/cli
 
-      - name: Build Quasar Capacitor App for Android
-        run: quasar build -m capacitor -T android
-
       - name: Install Capacitor Android
         run: npm install @capacitor/android
+
+      - name: Build Quasar Capacitor App for Android
+        run: quasar build -m capacitor -T android
 
       - name: Create APK for Android
         run: |
