@@ -162,22 +162,14 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
           echo "PATH=$PATH:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_ENV
 
-      - name: Install Gradle
-        run: sudo apt-get install -y gradle
-
-      - name: Make gradlew executable
-        run: |
-          ls -la # Check directory structure
-          chmod +x ./gradlew
-
       - name: Build Quasar Capacitor App for Android
-        run: quasar build -m capacitor -T android
+        run: quasar build -m capacitor -T android --skip-pkg
 
-      - name: Check directory structure
+      - name: Create APK for Android
         run: |
-          ls -la # Check directory structure
-          cd src-capacotor
-          ls -la # Check directory structure
+          cd src-capacitor/android
+          chmod +x ./gradle
+          ./gradlew assembleRelease
 
       - name: Upload Android Build Artifacts
         uses: actions/upload-artifact@v2
