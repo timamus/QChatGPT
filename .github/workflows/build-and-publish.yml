@@ -122,66 +122,32 @@ jobs:
       - name: Test
         run: cat Version.txt
 
-  build-android:
+  build-capacitor:
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      matrix:
+         node-version: [20.x]
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      - name: Setup NodeJS Environment ${{ matrix.node-version }}
+        uses: actions/setup-node@v4.0.3
         with:
-          node-version: '18.x'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install Quasar CLI
-        run: npm install -g @quasar/cli
-
-      - name: Install Capacitor Android
-        run: npm install @capacitor/android
-
-      - name: Install Android SDK
-        uses: actions/setup-java@v1
+            node-version: ${{ matrix.node-version }}
+      - run: yarn install && yarn global add @quasar/cli
+      - run: quasar build -m capacitor -T android --skip-pkg
+      - run: chmod +x ./src-capacitor/android/gradlew
+      
+      - name: Gradle Android
+        uses: vgaidarji/android-github-actions-build@v1.0.1
         with:
-          java-version: '11'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 30
-          build-tools: 30.0.3
-
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
-
-      - name: Set up environment variables
-        run: |
-          echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_ENV
-
-      - name: Build Quasar Capacitor App for Android
-        run: quasar build -m capacitor -T android --skip-pkg
-
-      - name: Create APK for Android
-        run: |
-          cd src-capacitor/android
-          chmod +x ./gradlew
-          ./gradlew assembleRelease
-
-      - name: Upload Android Build Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: qchatgpt-android
-          path: src-cordova/app/build/outputs/apk/release/app-release.apk
-
-      - name: Create Version Info
-        run: echo ${{ github.sha }} > Version.txt
-
-      - name: Test
-        run: cat Version.txt
+          args: ./src-capacitor/android/gradlew --project-dir=./src-capacitor/android assembleDebug
+      - run: zip -r ../android-debug.zip ./src-capacitor/android/app/build/outputs/apk/debug/
 
   publish:
     name: Publish Version
