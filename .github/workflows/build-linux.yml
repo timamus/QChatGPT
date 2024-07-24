@@ -34,6 +34,12 @@ jobs:
           cd dist/electron/Packaged
           zip -r QChatGPT-linux-x64.zip QChatGPT-linux-x64
 
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: qchatgpt
+          path: dist/electron/Packaged/QChatGPT-linux-x64.zip
+
       - name: Create Release Info
         run: echo ${{ github.sha }} > Release.txt
 
@@ -48,6 +54,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: qchatgpt
+
       - name: Get version from package.json
         id: get_version
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
@@ -57,4 +68,4 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ls -la # Check directory structure
-          gh release create "v${{ env.VERSION }}" dist/electron/Packaged/QChatGPT-linux-x64.zip -t "Release ${{ env.VERSION }}" -n "Release notes for ${{ env.VERSION }}" --target main
+          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip -t "Release ${{ env.VERSION }}" -n "Release notes for ${{ env.VERSION }}" --target main
