@@ -108,7 +108,7 @@ jobs:
         run: |
           cd dist/electron/Packaged
           ls -la # Check directory structure
-          zip -r QChatGPT-darwin-x64.zip QChatGPT-darwin-x64
+          zip -r QChatGPT-darwin-arm64.zip QChatGPT-darwin-arm64
 
       - name: Upload MacOS Build Artifacts
         uses: actions/upload-artifact@v2
@@ -154,4 +154,4 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ls -la # Check directory structure
-          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip QChatGPT-darwin-x64.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
+          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip QChatGPT-darwin-arm64.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
