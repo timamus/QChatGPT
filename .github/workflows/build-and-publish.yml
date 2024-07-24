@@ -142,15 +142,25 @@ jobs:
       - name: Install Capacitor Android
         run: npm install @capacitor/android
 
+      - name: Install Android SDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 30
+          build-tools: 30.0.3
+
       - name: Build Quasar Capacitor App for Android
         run: quasar build -m capacitor -T android
 
-      - name: Create APK for Android
+      - name: Check directory structure
         run: |
           ls -la # Check directory structure
-          cd src-cordova
+          cd src-capacotor
           ls -la # Check directory structure
-          ./gradlew assembleRelease
 
       - name: Upload Android Build Artifacts
         uses: actions/upload-artifact@v2
