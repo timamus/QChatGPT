@@ -84,9 +84,46 @@ jobs:
       - name: Test
         run: cat Version.txt
 
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
+
+      - name: Build Quasar Electron App for MacOS
+        run: quasar build -m electron
+
+      - name: Create ZIP Archive for MacOS
+        run: |
+          cd dist/electron/Packaged
+          zip -r QChatGPT-darwin-x64.zip QChatGPT-darwin-x64
+
+      - name: Upload MacOS Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: qchatgpt-macos
+          path: dist/electron/Packaged/QChatGPT-darwin-x64.zip
+
+      - name: Create Version Info
+        run: echo ${{ github.sha }} > Version.txt
+
+      - name: Test
+        run: cat Version.txt
+
   publish:
     name: Publish Version
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -102,6 +139,11 @@ jobs:
         with:
           name: qchatgpt-windows
 
+      - name: Download MacOS Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: qchatgpt-macos
+
       - name: Get version from package.json
         id: get_version
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
@@ -111,4 +153,4 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ls -la # Check directory structure
-          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
+          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip QChatGPT-darwin-x64.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
