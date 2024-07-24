@@ -168,7 +168,7 @@ jobs:
       - name: Create APK for Android
         run: |
           cd src-capacitor/android
-          chmod +x ./gradle
+          chmod +x ./gradlew
           ./gradlew assembleRelease
 
       - name: Upload Android Build Artifacts
