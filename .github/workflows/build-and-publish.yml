@@ -1,0 +1,114 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
+
+      - name: Build Quasar Electron App for Linux
+        run: quasar build -m electron
+
+      - name: Create ZIP Archive for Linux
+        run: |
+          cd dist/electron/Packaged
+          zip -r QChatGPT-linux-x64.zip QChatGPT-linux-x64
+
+      - name: Upload Linux Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: qchatgpt-linux
+          path: dist/electron/Packaged/QChatGPT-linux-x64.zip
+
+      - name: Create Version Info
+        run: echo ${{ github.sha }} > Version.txt
+
+      - name: Test
+        run: cat Version.txt
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
+
+      - name: Build Quasar Electron App for Windows
+        run: quasar build -m electron
+
+      - name: Create ZIP Archive for Windows
+        run: |
+          cd dist/electron/Packaged
+          ls -la # Check directory structure
+          zip -r QChatGPT-win32-x64.zip QChatGPT-win32-x64
+
+      - name: Upload Windows Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: qchatgpt-windows
+          path: dist/electron/Packaged/QChatGPT-win32-x64.zip
+
+      - name: Create Version Info
+        run: echo ${{ github.sha }} > Version.txt
+
+      - name: Test
+        run: cat Version.txt
+
+  publish:
+    name: Publish Version
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Linux Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: qchatgpt-linux
+
+      - name: Download Windows Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: qchatgpt-windows
+
+      - name: Get version from package.json
+        id: get_version
+        run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+
+      - name: Create Version
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          ls -la # Check directory structure
+          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
