@@ -114,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: qchatgpt-macos
-          path: dist/electron/Packaged/QChatGPT-darwin-x64.zip
+          path: dist/electron/Packaged/QChatGPT-darwin-arm64.zip
 
       - name: Create Version Info
         run: echo ${{ github.sha }} > Version.txt
