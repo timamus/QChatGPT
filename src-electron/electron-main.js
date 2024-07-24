@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from "electron";
+import { app, BrowserWindow, shell, Menu } from "electron";
 import path from "path";
 import os from "os";
 
@@ -43,6 +43,19 @@ function createWindow() {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
+  });
+
+  // Create context menu with keyboard shortcuts
+  const contextMenu = Menu.buildFromTemplate([
+    { role: 'cut', label: 'Cut', accelerator: 'CmdOrCtrl+X' },
+    { role: 'copy', label: 'Copy', accelerator: 'CmdOrCtrl+C' },
+    { role: 'paste', label: 'Paste', accelerator: 'CmdOrCtrl+V' },
+    { type: 'separator' },
+    { role: 'selectAll', label: 'Select All', accelerator: 'CmdOrCtrl+A' }
+  ]);
+
+  mainWindow.webContents.on('context-menu', (e, params) => {
+    contextMenu.popup(mainWindow, params.x, params.y);
   });
 }
 
