@@ -34,12 +34,6 @@ jobs:
           cd dist/electron/Packaged
           zip -r QChatGPT-linux-x64.zip QChatGPT-linux-x64
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: qchatgpt
-          path: dist/electron/Packaged/QChatGPT-linux-x64.zip
-
       - name: Create Release Info
         run: echo ${{ github.sha }} > Release.txt
 
@@ -59,17 +53,13 @@ jobs:
         with:
           name: qchatgpt
 
+      - name: Get version from package.json
+        id: get_version
+        run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+
       - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          ls -la # Проверка структуры директорий
-          gh release create "v$(date +'%Y%m%d%H%M%S')" QChatGPT-linux-x64.zip -t "Release $(date +'%Y-%m-%d %H:%M:%S')" -n "Release notes for $(date +'%Y-%m-%d %H:%M:%S')" --target main
-
-      - name: Cleanup Old Releases
-        uses: eregon/keep-last-n-releases@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          n: 3
-          remove_tags_without_release: true
+          ls -la # Check directory structure
+          gh release create "v${{ env.VERSION }}" dist/electron/Packaged/QChatGPT-linux-x64.zip -t "Release ${{ env.VERSION }}" -n "Release notes for ${{ env.VERSION }}" --target main
