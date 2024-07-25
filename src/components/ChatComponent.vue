@@ -28,7 +28,7 @@
           />
         </div>
 
-        <div class="row q-col-gutter-md tip-button-container">
+        <div class="row q-pl-md q-col-gutter-md tip-button-container">
           <div
             class="col-6 col-sm-3"
             v-for="button in TipButtons"
