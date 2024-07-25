@@ -169,7 +169,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: qchatgpt-android
-          path: src-capacitor/android/app/build/outputs/apk/debug/QChatGPT.zip
+          path: src-capacitor/android/app/build/outputs/apk/debug/QChatGPT-android.zip
   
       - name: Create Version Info
         run: echo ${{ github.sha }} > Version.txt
