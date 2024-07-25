@@ -159,21 +159,27 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
+      - name: Rename APK and create zip
+        run: |
+          cd src-capacitor/android/app/build/outputs/apk/debug
+          mv app-debug.apk QChatGPT.apk
+          zip QChatGPT-android.zip QChatGPT.apk
+  
       - name: Upload Android Build Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: qchatgpt-android
-          path: src-cordova/app/build/outputs/apk/release/app-release.apk
-
+          path: src-capacitor/android/app/build/outputs/apk/debug/QChatGPT.zip
+  
       - name: Create Version Info
         run: echo ${{ github.sha }} > Version.txt
-
+  
       - name: Test
         run: cat Version.txt
 
   publish:
     name: Publish Version
-    needs: [build-linux, build-windows, build-macos]
+    needs: [build-linux, build-windows, build-macos, build-android]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -194,6 +200,11 @@ jobs:
         with:
           name: qchatgpt-macos
 
+      - name: Download Android Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: qchatgpt-android
+
       - name: Get version from package.json
         id: get_version
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
@@ -203,4 +214,4 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ls -la # Check directory structure
-          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip QChatGPT-darwin-arm64.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
+          gh release create "v${{ env.VERSION }}" QChatGPT-linux-x64.zip QChatGPT-win32-x64.zip QChatGPT-darwin-arm64.zip QChatGPT-android.zip -t "Version ${{ env.VERSION }}" -n "Version notes for ${{ env.VERSION }}" --target main
