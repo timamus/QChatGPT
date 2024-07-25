@@ -150,15 +150,6 @@ jobs:
           api-level: 30
           build-tools: 30.0.3
 
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
-
-      - name: Set up environment variables
-        run: |
-          echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_ENV
-
       - name: Build Quasar Capacitor App for Android
         run: quasar build -m capacitor -T android --skip-pkg
 
