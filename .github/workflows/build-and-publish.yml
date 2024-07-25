@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18.x'
+          node-version: '20.x'
 
       - name: Install dependencies
         run: npm install
@@ -40,12 +40,6 @@ jobs:
           name: qchatgpt-linux
           path: dist/electron/Packaged/QChatGPT-linux-x64.zip
 
-      - name: Create Version Info
-        run: echo ${{ github.sha }} > Version.txt
-
-      - name: Test
-        run: cat Version.txt
-
   build-windows:
     runs-on: windows-latest
     steps:
@@ -55,7 +49,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18.x'
+          node-version: '20.x'
 
       - name: Install dependencies
         run: npm install
@@ -78,12 +72,6 @@ jobs:
           name: qchatgpt-windows
           path: dist/electron/Packaged/QChatGPT-win32-x64.zip
 
-      - name: Create Version Info
-        run: echo ${{ github.sha }} > Version.txt
-
-      - name: Test
-        run: cat Version.txt
-
   build-macos:
     runs-on: macos-latest
     steps:
@@ -93,7 +81,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18.x'
+          node-version: '20.x'
 
       - name: Install dependencies
         run: npm install
@@ -116,12 +104,6 @@ jobs:
           name: qchatgpt-macos
           path: dist/electron/Packaged/QChatGPT-darwin-arm64.zip
 
-      - name: Create Version Info
-        run: echo ${{ github.sha }} > Version.txt
-
-      - name: Test
-        run: cat Version.txt
-
   build-android:
     runs-on: ubuntu-latest
     steps:
@@ -131,7 +113,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18.x'
+          node-version: '20.x'
 
       - name: Install dependencies
         run: npm install
@@ -147,8 +129,8 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
         with:
-          api-level: 30
-          build-tools: 30.0.3
+          api-level: 35
+          build-tools: 35.0.0
 
       - name: Build Quasar Capacitor App for Android
         run: quasar build -m capacitor -T android --skip-pkg
@@ -170,12 +152,6 @@ jobs:
         with:
           name: qchatgpt-android
           path: src-capacitor/android/app/build/outputs/apk/debug/QChatGPT-android.zip
-  
-      - name: Create Version Info
-        run: echo ${{ github.sha }} > Version.txt
-  
-      - name: Test
-        run: cat Version.txt
 
   publish:
     name: Publish Version
