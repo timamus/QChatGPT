@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">QChatGPT</string>
+    <string name="title_activity_main">QChatGPT</string>
+    <string name="package_name">org.capacitor.qchatgpt.app</string>
+    <string name="custom_url_scheme">org.capacitor.qchatgpt.app</string>
+</resources>
