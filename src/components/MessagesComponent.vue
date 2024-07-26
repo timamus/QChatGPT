@@ -42,7 +42,7 @@
             : "ChatGPT"
         }}</q-item-label>
         <!-- Block for displaying user files -->
-        <FileViewer v-if="message.fileIds" :fileIds="message.fileIds" />
+        <FileViewer v-if="message.fileIds" :fileIds="message.fileIds" :key="message.fileIds" />
         <!-- Display plain text for user messages -->
         <template v-if="message.role === 0">
           <pre class="pre-wrap">{{ message.text }}</pre>
@@ -50,7 +50,7 @@
         <!-- Display processed text for ChatGPT or system messages -->
         <template v-else>
           <!-- image generation form Dall-E -->
-          <ImageViewer v-if="message.imageId" :imageId="message.imageId" />
+          <ImageViewer v-if="message.imageId" :imageId="message.imageId" :key="message.imageId" />
           <template
             v-for="(part, index) in splitMessage(message.text)"
             :key="'template-' + index"

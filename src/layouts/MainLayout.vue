@@ -331,7 +331,7 @@ const openDonateLink = async () => {
 // Close the left drawer menu if in overlay mode
 function closeDrawerIfOverlay() {
   // Close the left drawer menu if the screen is small
-  if ($q.screen.sm) {
+  if ($q.screen.sm || $q.screen.xs) {
     leftDrawerOpen.value = false;
   }
 }

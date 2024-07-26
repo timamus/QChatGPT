@@ -23,14 +23,14 @@ function getOpenAI() {
 
 export let stream = null;
 export let isLoading = ref(false);
+export let isImageGeneration = ref(false);
 let isNoAbort = false;
 
 // Send a new message to the OpenAI API and handle the response stream
 export async function sendMessage(
   newMessage,
   uploadedFiles,
-  uploader,
-  isImageGeneration
+  uploader
 ) {
   // Ensure input is not empty and response is not in progress
   if (!newMessage.value || isLoading.value) {

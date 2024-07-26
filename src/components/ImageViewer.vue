@@ -45,8 +45,9 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUpdate } from "vue";
-import { morph, exportFile } from "quasar";
+import { useQuasar, morph, exportFile } from "quasar";
 import { getImageById } from "../services/chatDBServices.js";
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 const props = defineProps({
   imageId: {
@@ -151,23 +152,70 @@ const imgLoaded = {
   reject: () => {},
 };
 
-function downloadImage() {
-  const base64Data = image.value.split(",")[1]; // Remove the data:image/png;base64, prefix
-  const byteCharacters = atob(base64Data);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  const byteArray = new Uint8Array(byteNumbers);
-  const blob = new Blob([byteArray], { type: "image/png" });
+// Use Quasar to handle notifications
+const $q = useQuasar();
 
-  const randomName = `image_${Math.random().toString(36).substring(2, 15)}.png`;
-  const status = exportFile(randomName, blob, { mimeType: "image/png" });
-
-  if (status !== true) {
-    console.error("Image download error: " + status);
+const downloadImage = async () => {
+  const base64Data = image.value.split(",")[1]; // Remove the prefix data:image/png;base64,
+  console.log(process.env.MODE);
+  if (process.env.MODE === 'capacitor') {
+    // Code for Capacitor
+    await downloadImageWithCapacitor(base64Data);
+  } else {
+    // Code for other methods (e.g., browser)
+    downloadImageWithBrowser(base64Data);
   }
-}
+};
+
+const downloadImageWithCapacitor = async (base64Data) => {
+  try {
+    const randomName = `image_${Math.random().toString(36).substring(2, 15)}.png`;
+
+    // Save base64 data as a file on the device
+    const result = await Filesystem.writeFile({
+      path: randomName,
+      data: base64Data,
+      directory: Directory.Documents,
+    });
+
+    if (result.uri) {
+      $q.notify({
+        color: "green",
+        position: "bottom",
+        message: "<span style='font-size: 1.1em;'>Image Saved</span>",
+        icon: "done",
+        timeout: 2000,
+        html: true, // Allows HTML content
+      });
+    } else {
+      console.error(`Image download error: ${result}`);
+    }
+  } catch (error) {
+    console.error("Image download error: ", error);
+  }
+};
+
+const downloadImageWithBrowser = (base64Data) => {
+  try {
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/png" });
+
+    const randomName = `image_${Math.random().toString(36).substring(2, 15)}.png`;
+
+    const status = exportFile(randomName, blob, { mimeType: "image/png" });
+
+    if (status !== true) {
+      console.error("Image download error: " + status);
+    }
+  } catch (error) {
+    console.error("Image download error: ", error);
+  }
+};
 </script>
 
 <style lang="sass">

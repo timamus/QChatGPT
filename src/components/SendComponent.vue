@@ -101,11 +101,11 @@ import {
   sendMessage as sendOpenAIMessage,
   abortStream,
   isLoading,
+  isImageGeneration
 } from "../services/openAIServices.js";
 import { settings } from "src/settings";
 
 const newMessage = ref("");
-const isImageGeneration = ref(false);
 // Variables for file upload
 const uploader = ref(null); // File uploader
 const hasFiles = ref(false); // Flag indicating if files are present
@@ -123,8 +123,7 @@ const sendMessage = async () => {
     await sendOpenAIMessage(
       newMessage,
       uploadedFiles,
-      uploader,
-      isImageGeneration
+      uploader
     );
   }
 };

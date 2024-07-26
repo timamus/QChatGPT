@@ -60,6 +60,7 @@ import {
 import {
   sendMessage as sendOpenAIMessage,
   isLoading,
+  isImageGeneration
 } from "../services/openAIServices.js";
 
 const scrollAreaRef = ref(null);
@@ -87,7 +88,8 @@ const TipButtons = [
 ];
 
 const handleTipBtnAction = async (label) => {
-  await sendOpenAIMessage(ref(label), ref([]), null, ref(false));
+  isImageGeneration.value = false;
+  await sendOpenAIMessage(ref(label), ref([]), null);
 };
 
 /**
@@ -176,11 +178,13 @@ watch(selectedChatId, async (newId, oldId) => {
 
 // Watch for changes in the lastApiCallTime
 watch(lastApiCallTime, (newTime, oldTime) => {
-  scrollAreaRef.value.setScrollPosition(
-    "vertical",
-    scrollAreaRef.value.getScroll().verticalSize,
-    300
-  );
+  setTimeout(() => {
+    scrollAreaRef.value.setScrollPosition(
+      "vertical",
+      scrollAreaRef.value.getScroll().verticalSize,
+      300
+    );
+  }, 100); // Setting a delay of 100 milliseconds
 });
 </script>
 
