@@ -88,7 +88,7 @@ update-desktop-database $HOME/.local/share/applications
 ```
 
 <div align="center">
-  <a href="https://paypal.me/tmusab" target="_blank">
+  <a href="https://paypal.me/tmusab">
     <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200"/>
   </a>
 </div>
