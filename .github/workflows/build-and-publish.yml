@@ -29,6 +29,9 @@ jobs:
       - name: Build Quasar Electron App for Linux
         run: quasar build -m electron
 
+      - name: Copy Icon
+        run: cp src-electron/icons/icon.png dist/electron/Packaged/QChatGPT-linux-x64
+
       - name: Create ZIP Archive for Linux
         run: |
           cd dist/electron/Packaged
