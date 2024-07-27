@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="180" src="src/assets/QChatGPT_logo_1024x1024.png" alt="QChatGPT">
+  <img width="150" src="src/assets/QChatGPT_logo_1024x1024.png" alt="QChatGPT">
   <h1 align="center">QChatGPT</h1>
   <p align="center">ChatGPT cross-platform client made with Quasar Framework (Linux, Windows, Mac, Android and iOS)</p>
 </p>
