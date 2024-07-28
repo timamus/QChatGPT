@@ -24,6 +24,7 @@
 - **Model Updates**: Receive new models without needing to update the application.
 - **Syntax Highlighting**: Supports over 20 popular programming languages.
 - **Image Generation**: Create images using Dall-E 3.
+- **Image Recognition**: Recognize images in .png, .jpeg, .jpg, .webp, and .gif formats.
 - **Search Functionality**: Quickly find the information, chat, or message you need with search across chat lists and within chats.
 - **Automatic Chat Grouping by Timeline**: Chats are organized by time for convenient viewing and navigation.
 
