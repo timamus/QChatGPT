@@ -18,9 +18,9 @@
 
 ## Features
 
-- **Cost-efficient Requests**: Pay only for the requests you make using the ChatGPT API key.
+- **Cost-efficient Requests**: Pay only for the requests you make using an API key for the latest ChatGPT models when needed.
 - **Local Data Storage**: Chats are stored on your device, ensuring stable operation and access to history.
-- **Real-time Support**: Operate seamlessly in real time.
+- **Real-time Interaction**: Receive responses from ChatGPT in real time.
 - **Model Updates**: Receive new models without needing to update the application.
 - **Syntax Highlighting**: Supports over 20 popular programming languages.
 - **Image Generation**: Create images using Dall-E 3.
