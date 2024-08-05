@@ -29,7 +29,7 @@
 
           <!-- Block to manage showMarkdown -->
           <div class="row justify-between items-center toggle q-mt-md">
-            <span>Show Markdown</span>
+            <span>Render Markdown</span>
             <q-toggle v-model="settings.showMarkdown.value" />
           </div>
           <div class="q-pt-xs text-left toggle-hint">

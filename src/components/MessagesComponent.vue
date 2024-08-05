@@ -351,32 +351,54 @@ const copyBlock = async (text) => {
 
 /* Customize styles for headers */
 :deep(.md-content h1) {
-  font-size: 2rem; /* Size of h1 header */
-  font-weight: bold; /* Bold font */
+  font-size: 1.802em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 
 :deep(.md-content h2) {
-  font-size: 1.74rem; /* Size of h2 header */
-  font-weight: bold; /* Bold font */
+  font-size: 1.602em;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 
 :deep(.md-content h3) {
-  font-size: 1.52rem; /* Size of h3 header */
-  font-weight: bold; /* Bold font */
+  font-size: 1.424em;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 
 :deep(.md-content h4) {
-  font-size: 1.32rem; /* Size of h4 header */
-  font-weight: bold; /* Bold font */
+  font-size: 1.266em;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 
 :deep(.md-content h5) {
-  font-size: 1.15rem; /* Size of h5 header */
-  font-weight: bold; /* Bold font */
+  font-size: 1.125em;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 
 :deep(.md-content h6) {
-  font-size: 1rem; /* Size of h6 header */
-  font-weight: bold; /* Bold font */
+  font-size: 1em;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.5;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 </style>
