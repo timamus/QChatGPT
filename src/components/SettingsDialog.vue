@@ -26,6 +26,15 @@
           <div class="q-pt-xs text-left toggle-hint">
             Line break, in this case, will be possible by pressing Ctrl + Enter
           </div>
+
+          <!-- Block to manage showMarkdown -->
+          <div class="row justify-between items-center toggle q-mt-md">
+            <span>Show Markdown</span>
+            <q-toggle v-model="settings.showMarkdown.value" />
+          </div>
+          <div class="q-pt-xs text-left toggle-hint">
+            Enable or disable Markdown rendering
+          </div>
         </q-card-section>
         <q-card-section class="q-mb-md">
           <div class="q-mb-md text-h6">General settings</div>

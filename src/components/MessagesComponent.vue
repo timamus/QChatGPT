@@ -55,13 +55,22 @@
             v-for="(part, index) in splitMessage(message.text)"
             :key="'template-' + index"
           >
-            <pre
-              class="pre-wrap"
-              v-if="!isCode(part)"
-              :key="'text-' + index"
-              :style="{ color: message.role === 2 ? 'red' : 'whitesmoke' }"
-              >{{ part.trim() }}</pre
-            >
+            <template v-if="!isCode(part)">
+              <pre
+                class="pre-wrap"
+                v-if="!settings.showMarkdown.value"
+                :key="'text-' + index"
+                :style="{ color: message.role === 2 ? 'red' : 'whitesmoke' }"
+                >{{ part.trim() }}</pre
+              >
+              <div
+                class="md-content"
+                v-else
+                :key="'text-md-' + index"
+                :style="{ color: message.role === 2 ? 'red' : 'whitesmoke' }"
+                v-html="renderMarkdown(part.trim())"
+              ></div>
+            </template>
             <q-card
               flat
               bordered
@@ -128,6 +137,16 @@ import { useQuasar, copyToClipboard } from "quasar";
 import { thumbStyle, barStyle } from "src/styles";
 import ImageViewer from "./ImageViewer.vue";
 import FileViewer from "./FileViewer.vue";
+import markdownit from "markdown-it";
+import { settings } from "src/settings";
+
+// Initialize markdown-it
+const md = markdownit();
+
+// Function to convert Markdown to HTML
+const renderMarkdown = (text) => {
+  return md.render(text);
+};
 
 const props = defineProps({
   messages: {
@@ -314,5 +333,50 @@ const copyBlock = async (text) => {
   word-wrap: break-word;
   max-width: 100%;
   font-size: 1.1em;
+}
+
+/* Styling for markdown display */
+.md-content {
+  color: whitesmoke;
+  font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  font-size: 1.1em;
+  max-width: 48rem !important;
+  margin: 0;
+}
+
+:deep(.md-content ul) {
+  margin-bottom: 1em; /* Set bottom margin for list */
+}
+
+/* Customize styles for headers */
+:deep(.md-content h1) {
+  font-size: 2rem; /* Size of h1 header */
+  font-weight: bold; /* Bold font */
+}
+
+:deep(.md-content h2) {
+  font-size: 1.74rem; /* Size of h2 header */
+  font-weight: bold; /* Bold font */
+}
+
+:deep(.md-content h3) {
+  font-size: 1.52rem; /* Size of h3 header */
+  font-weight: bold; /* Bold font */
+}
+
+:deep(.md-content h4) {
+  font-size: 1.32rem; /* Size of h4 header */
+  font-weight: bold; /* Bold font */
+}
+
+:deep(.md-content h5) {
+  font-size: 1.15rem; /* Size of h5 header */
+  font-weight: bold; /* Bold font */
+}
+
+:deep(.md-content h6) {
+  font-size: 1rem; /* Size of h6 header */
+  font-weight: bold; /* Bold font */
 }
 </style>

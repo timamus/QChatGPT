@@ -13,6 +13,7 @@ export const settings = {
   presence_penalty: ref(0),
   prompt: ref(""),
   sendOnEnter: ref(true),
+  showMarkdown: ref(true),
   imageSize: ref("1024x1024"),
   imageStyle: ref("vivid"),
 };
@@ -28,6 +29,7 @@ export function loadSettings() {
     "presence_penalty",
     "prompt",
     "sendOnEnter",
+    "showMarkdown",
     "imageSize",
     "imageStyle",
   ];
@@ -46,7 +48,7 @@ export function loadSettings() {
         ].includes(key)
       ) {
         settings[key].value = parseFloat(value);
-      } else if (key === "sendOnEnter") {
+      } else if (key === "sendOnEnter" || key === "showMarkdown") {
         settings[key].value = value === "true";
       } else {
         settings[key].value = value;
@@ -71,6 +73,7 @@ export function saveSettings() {
   );
   LocalStorage.set("prompt", settings.prompt.value);
   LocalStorage.set("sendOnEnter", settings.sendOnEnter.value.toString());
+  LocalStorage.set("showMarkdown", settings.showMarkdown.value.toString());
   LocalStorage.set("imageSize", settings.imageSize.value);
   LocalStorage.set("imageStyle", settings.imageStyle.value);
 }
