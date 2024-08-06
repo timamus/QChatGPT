@@ -300,7 +300,8 @@ const copyBlock = async (text) => {
 /* Styling for preformatted text display */
 .pre-wrap {
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
   color: whitesmoke;
   font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial,
     sans-serif;
@@ -330,13 +331,16 @@ const copyBlock = async (text) => {
 
 /* Styling for item labels */
 .q-item__label {
-  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
   max-width: 100%;
   font-size: 1.1em;
 }
 
 /* Styling for markdown display */
 .md-content {
+  overflow-wrap: break-word;
+  word-break: break-word;
   color: whitesmoke;
   font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial,
     sans-serif;
