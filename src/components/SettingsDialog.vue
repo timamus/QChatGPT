@@ -268,19 +268,19 @@ const loadModels = async () => {
   }
 };
 
-// Функция для установки значения модели
+// Function to set the model value
 function setModel(val) {
-  settings.model.value = val
+  settings.model.value = val;
 }
 
-const modelOptions = ref(settings.models.value)
+const modelOptions = ref(settings.models.value);
 
-// Функция для фильтрации вариантов
+// Function to filter the model options
 function filterFn(val, update, abort) {
   update(() => {
-    const needle = val.toLowerCase() // Важно: используем toLowerCase, а не toLocaleLowerCase, если не требуется учитывать локаль
-    modelOptions.value = settings.models.value.filter(v => v.toLowerCase().includes(needle))
-  })
+    const needle = val.toLowerCase(); // Important: using toLowerCase, instead of toLocaleLowerCase, unless you need to account for locale.
+    modelOptions.value = settings.models.value.filter(v => v.toLowerCase().includes(needle));
+  });
 }
 </script>
 
