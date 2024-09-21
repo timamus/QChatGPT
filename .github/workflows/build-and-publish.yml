@@ -38,7 +38,7 @@ jobs:
           zip -r QChatGPT-linux-x64.zip QChatGPT-linux-x64
 
       - name: Upload Linux Build Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: qchatgpt-linux
           path: dist/electron/Packaged/QChatGPT-linux-x64.zip
@@ -70,7 +70,7 @@ jobs:
           Compress-Archive -Path QChatGPT-win32-x64 -DestinationPath QChatGPT-win32-x64.zip
 
       - name: Upload Windows Build Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: qchatgpt-windows
           path: dist/electron/Packaged/QChatGPT-win32-x64.zip
@@ -102,7 +102,7 @@ jobs:
           zip -r QChatGPT-darwin-arm64.zip QChatGPT-darwin-arm64
 
       - name: Upload MacOS Build Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: qchatgpt-macos
           path: dist/electron/Packaged/QChatGPT-darwin-arm64.zip
@@ -151,7 +151,7 @@ jobs:
           zip QChatGPT-android.zip QChatGPT.apk
   
       - name: Upload Android Build Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: qchatgpt-android
           path: src-capacitor/android/app/build/outputs/apk/debug/QChatGPT-android.zip
@@ -165,22 +165,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download Linux Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: qchatgpt-linux
 
       - name: Download Windows Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: qchatgpt-windows
 
       - name: Download MacOS Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: qchatgpt-macos
 
       - name: Download Android Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: qchatgpt-android
 
