@@ -107,7 +107,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 .q-dialog-plugin {
   width: 480px;
   max-width: 80vw;
-  height: 680px;
+  height: 90vh;
   max-height: 90vh;
   font-size: 1.1em;
 }

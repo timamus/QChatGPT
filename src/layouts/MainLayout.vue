@@ -347,7 +347,7 @@ function closeDrawerIfOverlay() {
 }
 
 .toolbar-model-selector {
-  width: 170px;
+  width: 190px;
   font-size: 1.1em;
 }
 

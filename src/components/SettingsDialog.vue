@@ -71,8 +71,15 @@
             <!-- Model dropdown -->
             <q-select
               filled
-              v-model="settings.model.value"
-              :options="settings.models.value"
+              :model-value="settings.model.value"
+              use-input
+              hide-selected
+              fill-input
+              input-debounce="0"
+              :options="modelOptions"
+              @filter="filterFn"
+              @input-value="setModel"
+              maxlength="50"
               label="Select OpenAI Model"
               popup-content-class="popup-styled scrollbar-styled"
               class="model-selector q-mt-lg col"
@@ -260,6 +267,21 @@ const loadModels = async () => {
     loading.value = false;
   }
 };
+
+// Функция для установки значения модели
+function setModel(val) {
+  settings.model.value = val
+}
+
+const modelOptions = ref(settings.models.value)
+
+// Функция для фильтрации вариантов
+function filterFn(val, update, abort) {
+  update(() => {
+    const needle = val.toLowerCase() // Важно: используем toLowerCase, а не toLocaleLowerCase, если не требуется учитывать локаль
+    modelOptions.value = settings.models.value.filter(v => v.toLowerCase().includes(needle))
+  })
+}
 </script>
 
 <style scoped>
